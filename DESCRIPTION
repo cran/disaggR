@@ -1,7 +1,7 @@
 Package: disaggR
 Type: Package
 Title: Two-Steps Benchmarks for Time Series Disaggregation
-Version: 0.1.5
+Version: 0.1.6
 Date: 2020-08-04
 Author: Arnaud Feldmann
 Maintainer: Arnaud Feldmann <arnaud.feldmann@gmail.com>
@@ -17,6 +17,6 @@ Suggests: testthat (>= 2.1.0), vdiffr
 Depends: R (>= 2.10)
 LazyData: yes
 NeedsCompilation: no
-Packaged: 2020-08-24 08:10:45 UTC; arnok
+Packaged: 2020-08-24 17:30:26 UTC; arnok
 Repository: CRAN
-Date/Publication: 2020-08-24 15:50:22 UTC
+Date/Publication: 2020-08-25 14:40:02 UTC

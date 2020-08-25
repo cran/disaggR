@@ -335,6 +335,8 @@ test_that("errors",{
   expect_error(twoStepsBenchmark_impl(turnover,construction,
                                       start.coeff.calc = 2000,
                                       end.coeff.calc = 2010,
+                                      start.domain = 2000,
+                                      end.domain= 2020.333,
                                       include.rho=FALSE,
                                       include.differenciation = TRUE,
                                       set_coefficients = numeric(),
@@ -349,7 +351,10 @@ test_that("errors",{
 })
 
 test_that("reUseBenchmark works",{
-  benchmark1 <- twoStepsBenchmark(turnover,construction,include.rho = TRUE)
+  benchmark1 <- twoStepsBenchmark(turnover,construction,include.rho = TRUE,
+                                  start.coeff.calc=2001,end.coeff.calc=2015,
+                                  start.benchmark=2002,end.benchmark=2018,
+                                  start.domain = c(2000,2),end.domain=c(2020,12))
   decompose(turnover,type = "multiplicative")
   adjusted_turnover <- window(turnover/decompose(turnover)$seasonal,start=2006)
   benchmark2 <- reUseBenchmark(adjusted_turnover,benchmark1)
@@ -364,6 +369,10 @@ test_that("reUseBenchmark works",{
   expect_identical(m1$include.differenciation,m2$include.differenciation)
   expect_identical(m1$start.coeff.calc,m2$start.coeff.calc)
   expect_identical(m1$end.coeff.calc,m2$end.coeff.calc)
+  expect_identical(m1$start.benchmark,m2$start.benchmark)
+  expect_identical(m1$end.benchmark,m2$end.benchmark)
+  expect_identical(m1$start.domain,m2$start.domain)
+  expect_identical(m1$end.domain,m2$end.domain)
   
   expect_false(identical(smoothed.part(benchmark3),smoothed.part(benchmark1)))
   expect_identical(coefficients(benchmark1),coefficients(benchmark3))
@@ -371,6 +380,10 @@ test_that("reUseBenchmark works",{
   expect_identical(m1$include.differenciation,m3$include.differenciation)
   expect_identical(m1$start.coeff.calc,m3$start.coeff.calc)
   expect_identical(m1$end.coeff.calc,m3$end.coeff.calc)
+  expect_identical(m1$start.benchmark,m3$start.benchmark)
+  expect_identical(m1$end.benchmark,m3$end.benchmark)
+  expect_identical(m1$start.domain,m3$start.domain)
+  expect_identical(m1$end.domain,m3$end.domain)
   
   expect_false(identical(as.ts(benchmark3),as.ts(benchmark2)))
   

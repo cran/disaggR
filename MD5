@@ -1,4 +1,4 @@
-76a23e0895883426dcaa21396725a50a *DESCRIPTION
+1b48a57b16132104cc880dd62cc87ec5 *DESCRIPTION
 0d37f166596f5b6418428f556a66a02a *NAMESPACE
 a0960f7fa4b4c8433afa06be4aa13783 *R/bflSmooth.R
 e922bafe15ce36ea3c07f1648f867de4 *R/data.R
@@ -9,8 +9,8 @@ d18e38c4d338a3e4640d7530c1ce60b2 *R/plot.R
 548a60df48324da9e832860c9892a397 *R/praislm-methods.R
 4c5ba329ac2b77d19c9c49c27415b8f7 *R/praislm.R
 c2fb725bbdd3e363b1d473dc6ed627a1 *R/twoStepsBenchmark-methods.R
-73f5d59fd4f3d1e4615ccecdd36feac8 *R/twoStepsBenchmark.R
-f17f1af52ef85506d69c4eeedfa29a23 *README.md
+a5e9f1c770534d12c2661d752e824167 *R/twoStepsBenchmark.R
+d82ee95db34f2e6df041ba387c7736f0 *README.md
 02bc9f1b2c00ac125f45f79583ddf994 *data/construction.RData
 99595744fe4135587784f7e414c3f074 *data/turnover.RData
 5380498e4fd8e6f509b26276079d2b8d *man/bflSmooth.Rd
@@ -19,7 +19,7 @@ a6abdcdf3d93b101d1070e100000c210 *man/disaggR-package.Rd
 d2a4def4b866fe607a3322cfb7ce1125 *man/figures/README-fi-1.png
 e4804ab24d793f3fe8dba222e59a9ec6 *man/figures/README-unnamed-chunk-3-1.png
 d2a4def4b866fe607a3322cfb7ce1125 *man/figures/README-unnamed-chunk-3-2.png
-d2a4def4b866fe607a3322cfb7ce1125 *man/figures/README-unnamed-chunk-4-1.png
+e4804ab24d793f3fe8dba222e59a9ec6 *man/figures/README-unnamed-chunk-4-1.png
 d2a4def4b866fe607a3322cfb7ce1125 *man/figures/README-unnamed-chunk-4-2.png
 b1ab7c125a167132c765e7248c1906de *man/in_sample.Rd
 40b31ecd876791e0a10762197d33d551 *man/model.list.Rd
@@ -46,5 +46,5 @@ b73a4903dd8c03db25ee63b7a5288621 *tests/testthat/test-in_sample.R
 0f26d2b0669b28b9403cc3b02dec434e *tests/testthat/test-plot.R
 6ed60ded170efd01402329e8327bc5d1 *tests/testthat/test-praislm-methods.R
 91a04ac761688ecbc88afe8a1c1e2a50 *tests/testthat/test-praislm.R
-5c1a61b0a29b234847999b9287d4be22 *tests/testthat/test-twoStepsBenchmark-methods.R
-7834fba3320643949d9c5345d5441e2d *tests/testthat/test-twoStepsBenchmark.R
+f73ab28f4094b0c7f64ed14dadb991e2 *tests/testthat/test-twoStepsBenchmark-methods.R
+94bba4e61ad6e4d97179f2f1d8e04666 *tests/testthat/test-twoStepsBenchmark.R
