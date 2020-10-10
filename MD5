@@ -1,6 +1,6 @@
-ee43b2e2b02d6d7c13a3ab8bb7c94fb7 *DESCRIPTION
+5b8352f3803a0dfe886dc14f8e23cd3f *DESCRIPTION
 23237e622dbb7413230e2af82093669b *NAMESPACE
-36fac02e689a19b7296b525490323a80 *NEWS.md
+2fed8aadadfec80ec4847077585690be *NEWS.md
 df4b8e748f0adcf3c027cf20728b80d8 *R/bflSmooth.R
 e922bafe15ce36ea3c07f1648f867de4 *R/data.R
 e815bc3cb7299de08f911d86c5d7a743 *R/disaggR.R
@@ -49,4 +49,4 @@ b73a4903dd8c03db25ee63b7a5288621 *tests/testthat/test-in_sample.R
 76c99d6a08ab61bd21872f8f50cbc4c0 *tests/testthat/test-plot.R
 80efb3699cc78234d3f254c176797033 *tests/testthat/test-praislm.R
 94bba4e61ad6e4d97179f2f1d8e04666 *tests/testthat/test-twoStepsBenchmark.R
-270a7c416627ec30ca99f2d929b46d1a *tests/testthat/test-utils.R
+91cf506fd91e293f9f0a6dab1c82a405 *tests/testthat/test-utils.R
