@@ -1,6 +1,6 @@
-5b8352f3803a0dfe886dc14f8e23cd3f *DESCRIPTION
+bd127f818173b8ddb4fac4c673f4a39c *DESCRIPTION
 23237e622dbb7413230e2af82093669b *NAMESPACE
-2fed8aadadfec80ec4847077585690be *NEWS.md
+3d817dd86e6aed4c95db29f6d38baa16 *NEWS.md
 df4b8e748f0adcf3c027cf20728b80d8 *R/bflSmooth.R
 e922bafe15ce36ea3c07f1648f867de4 *R/data.R
 e815bc3cb7299de08f911d86c5d7a743 *R/disaggR.R
@@ -8,7 +8,7 @@ e815bc3cb7299de08f911d86c5d7a743 *R/disaggR.R
 2c9790b1f54fab604d446cca5bdf764a *R/methods.R
 004e4463cf9eb33a8b12642ef1610c41 *R/plot.R
 2f47854091c9d119943cb3b6bf5ef909 *R/praislm.R
-97badf812d705a26e6fca7eeea0f22b0 *R/twoStepsBenchmark.R
+91046d81842f73d0527ec51dbd189297 *R/twoStepsBenchmark.R
 eeb0842e80809f2a0ac3de6b74113b76 *R/utils.R
 46d419b0c747a6e2fe9503b38ea0a42f *README.md
 02bc9f1b2c00ac125f45f79583ddf994 *data/construction.RData
@@ -48,5 +48,5 @@ b73a4903dd8c03db25ee63b7a5288621 *tests/testthat/test-in_sample.R
 283c4aaba048d7437e344e3f35489a67 *tests/testthat/test-methods.R
 76c99d6a08ab61bd21872f8f50cbc4c0 *tests/testthat/test-plot.R
 80efb3699cc78234d3f254c176797033 *tests/testthat/test-praislm.R
-94bba4e61ad6e4d97179f2f1d8e04666 *tests/testthat/test-twoStepsBenchmark.R
-91cf506fd91e293f9f0a6dab1c82a405 *tests/testthat/test-utils.R
+1a3eb2636b6cd0281142f0d636085cdb *tests/testthat/test-twoStepsBenchmark.R
+f2e285b2c0138c28d9e82a1768ad5926 *tests/testthat/test-utils.R
