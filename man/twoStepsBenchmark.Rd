@@ -3,7 +3,7 @@
 \name{twoStepsBenchmark}
 \alias{twoStepsBenchmark}
 \alias{annualBenchmark}
-\title{Bends a time-serie with a lower frequency one}
+\title{Regress and bends a time-serie with a lower frequency one}
 \usage{
 twoStepsBenchmark(hfserie,lfserie,include.differenciation=FALSE,include.rho=FALSE,
                   set.coeff=NULL,set.const=NULL,
@@ -11,12 +11,16 @@ twoStepsBenchmark(hfserie,lfserie,include.differenciation=FALSE,include.rho=FALS
                   start.benchmark=NULL,end.benchmark=NULL,
                   start.domain=NULL,end.domain=NULL,...)
 
-annualBenchmark(hfserie,lfserie,include.differenciation=FALSE,include.rho=FALSE,
+
+annualBenchmark(hfserie,lfserie,
+                include.differenciation=FALSE,include.rho=FALSE,
                 set.coeff=NULL,set.const=NULL,
-                start.coeff.calc=start(lfserie)[1],end.coeff.calc=end(lfserie)[1],
-                start.benchmark=start(lfserie)[1],end.benchmark=end.coeff.calc+1,
+                start.coeff.calc=start(lfserie)[1L],
+                end.coeff.calc=end(lfserie)[1L],
+                start.benchmark=start(lfserie)[1L],
+                end.benchmark=end.coeff.calc[1L]+1L,
                 start.domain=start(hfserie),
-                end.domain=c(end.benchmark+2,frequency(hfserie)))
+                end.domain=c(end.benchmark[1L]+2L,frequency(hfserie)))
 }
 \arguments{
 \item{hfserie}{the bended time-serie. It can be a matrix time-serie.}
@@ -26,70 +30,102 @@ annualBenchmark(hfserie,lfserie,include.differenciation=FALSE,include.rho=FALSE,
 \item{include.differenciation}{a boolean of length 1. If \code{TRUE}, \code{lfserie} and
 \code{hfserie} are differenced before the estimation of the regression.}
 
-\item{include.rho}{a boolean of length 1. If \code{TRUE}, the regression includes an autocorrelation
-parameter for the residuals. The applied procedure is a Prais-Winsten estimation.}
+\item{include.rho}{a boolean of length 1. If \code{TRUE}, the regression includes
+an autocorrelation parameter for the residuals. The applied procedure is a
+Prais-Winsten estimation.}
 
-\item{set.coeff}{an optional double, that allows the user to set the regression coefficients instead
-of evaluating them.
-If \code{hfserie} is a matrix, each column initializes a coefficient with the same name as the column name.
-Hence, \code{set.coeff} has to be a named double, which will optionally set some coefficients instead of
-evaluating them.}
+\item{set.coeff}{an optional numeric, that allows the user to set the
+regression coefficients instead of evaluating them.
+If \code{hfserie} is a matrix, each column initializes a coefficient with the same
+name as the column name.
+Hence, \code{set.coeff} has to be a named numeric, which will optionally set some
+coefficients instead of evaluating them.}
 
-\item{set.const}{an optional double of length 1, that sets the regression constant.
-The constant is actually an automatically added column to \code{hfserie}. Using \code{set.constant=3}
-is equivalent to using \code{set.coeff=c(constant=3)}.}
+\item{set.const}{an optional numeric of length 1, that sets the regression
+constant.
+The constant is actually an automatically added column to \code{hfserie}. Using
+\code{set.constant=3} is equivalent to using \code{set.coeff=c(constant=3)}.}
 
-\item{start.coeff.calc}{an optional start for the estimation of the coefficients of the regression.
-Should be a double or a numeric of length 2, like a window for \code{lfserie}. If NULL, the start is defined by lfserie's window.}
+\item{start.coeff.calc}{an optional start for the estimation of the
+coefficients of the regression.
+Should be a numeric of length 1 or 2, like a window for \code{lfserie}. If NULL,
+the start is defined by lfserie's window.}
 
-\item{end.coeff.calc}{an optional end for the estimation of the coefficients of the regression.
-Should be a double or a numeric of length 2, like a window for \code{lfserie}. If NULL, the end is defined by lfserie's window.}
+\item{end.coeff.calc}{an optional end for the estimation of the coefficients
+of the regression.
+Should be a numeric of length 1 or 2, like a window for \code{lfserie}. If NULL,
+the end is defined by lfserie's window.}
 
 \item{start.benchmark}{an optional start for \code{lfserie} to bend \code{hfserie}.
-Should be a double or a numeric of length 2, like a window for \code{lfserie}. If NULL, the start is defined by lfserie's window.}
+Should be a numeric of length 1 or 2, like a window for \code{lfserie}. If NULL,
+the start is defined by lfserie's window.}
 
 \item{end.benchmark}{an optional end for \code{lfserie} to bend \code{hfserie}.
-Should be a double or a numeric of length 2, like a window for \code{lfserie}. If NULL, the start is defined by lfserie's window.}
+Should be a numeric of length 1 or 2, like a window for \code{lfserie}. If NULL,
+the start is defined by lfserie's window.}
 
-\item{start.domain}{the start of the output high-frequency serie. It also defines the smoothing window :
-The low-frequency residuals will be extrapolated until they contain the smallest low-frequency window that is around the high-frequency
-domain window.
-Should be a double or a numeric of length 2, like a window for \code{hfserie}. If NULL, the start is defined by hfserie's window.}
+\item{start.domain}{an optional for the output high-frequency serie. It also
+defines the smoothing window :
+The low-frequency residuals will be extrapolated until they contain the
+smallest low-frequency window that is around the high-frequency domain
+window.
+Should be a numeric of length 1 or 2, like a window for \code{hfserie}. If NULL,
+the start is defined by hfserie's window.}
 
-\item{end.domain}{the end of the output high-frequency serie. It also defines the smoothing window :
-The low-frequency residuals will be extrapolated until they contain the smallest low-frequency window that is around the high-frequency
-domain window.
-Should be a double or a numeric of length 2, like a window for \code{hfserie}. If NULL, the start is defined by hfserie's window.}
+\item{end.domain}{an optional end for the output high-frequency serie. It
+also defines the smoothing window :
+The low-frequency residuals will be extrapolated until they contain the
+smallest low-frequency window that is around the high-frequency domain
+window.
+Should be a numeric of length 1 or 2, like a window for \code{hfserie}. If NULL,
+the start is defined by hfserie's window.}
 
-\item{\dots}{if the dots contain a cl item, its value overwrites the value
-of the returned call. This feature allows to build wrappers.}
+\item{\dots}{if the dots contain a cl item, its value overwrites the value of
+the returned call. This feature allows to build wrappers.}
 }
 \value{
 twoStepsBenchark returns an object of class "\code{twoStepsBenchmark}".
 
-The function \code{summary} can be used to obtain and print a summary of the regression used by the benchmark.
-The functions \code{plot} and \code{autoplot} (the latter requires to load \pkg{ggplot2}) produces graphics of the benchmarked
-serie and the bending serie.
-The function \link{in_sample} produces in-sample predictions with the inner regression.
-The generic accessor functions \code{as.ts}, \code{prais}, \code{coefficients}, \code{residuals}, \code{fitted.values}, \code{model.list}, \code{se}, \code{rho}
-extract various useful features of the returned value.
+The function \code{summary} can be used to obtain and print a summary of the
+regression used by the benchmark.
+The functions \code{plot} and \code{autoplot} (the generic from \pkg{ggplot2}) produce
+graphics of the benchmarked serie and the bending serie.
+The functions \link{in_disaggr}, \link{in_revisions}, \link{in_scatter}
+produce comparisons on which plot and autoplot can also be used.
 
-An object of class "\code{twoStepsBenchmark}" is a list containing the following components :
-\item{benchmarked.serie}{a time-serie, that is the result of the benchmark.}
-\item{fitted.values}{a time-serie, that is the high-frequency serie as it is
-after having applied the regression coefficients.
-The difference \code{benchmarked.serie} - \code{fitted.values} is then a smoothed residual, eventually integrated
-if \code{include.differenciation=TRUE}.}
-\item{regression}{an object of class praislm, it is the regression on which relies the
-benchmark. It can be extracted with the function \link{prais}}
+The generic accessor functions \code{as.ts}, \code{prais}, \code{coefficients}, \code{residuals},
+\code{fitted.values}, \code{model.list}, \code{se}, \code{rho} extract various useful features of
+the returned value.
+
+An object of class "\code{twoStepsBenchmark}" is a list containing the following
+components :
+\item{benchmarked.serie}{a time-serie, that is the result of the
+benchmark.}
+\item{fitted.values}{a time-serie, that is the high-frequency serie as it
+is after having applied the regression coefficients.
+The difference \code{benchmarked.serie} - \code{fitted.values} is then a smoothed
+residual, eventually integrated if \code{include.differenciation=TRUE}.}
+\item{regression}{an object of class praislm, it is the regression on which
+relies the benchmark. It can be extracted with the function \link{prais}}
 \item{smoothed.part}{the smoothed part of the two-steps benchmark.}
-\item{model.list}{a list containing all the arguments submitted to the function.}
-\item{call}{the matched call (either of twoStepsBenchmark or annualBenchmark)}
+\item{model.list}{a list containing all the arguments submitted to the
+function.}
+\item{call}{the matched call (either of twoStepsBenchmark or
+annualBenchmark)}
 }
 \description{
 twoStepsBenchmark bends a time-serie with a time-serie of a lower frequency.
 The procedure involved is a Prais-Winsten regression, then an additive
 Denton benchmark.
+
+Therefore, the resulting time-serie is the sum of a regression fit, eventually
+reintegrated, and of a smoothed part. The smoothed part minimizes the sum of squares
+of its differences.
+
+The resulting time-serie is equal to the low-frequency serie after aggregation
+within the benchmark window.
+}
+\details{
 annualBenchmark is a wrapper of the main function, that applies more specifically
 to annual series, and changes the default window parameters to the ones
 that are commonly used by quarterly national accounts.
@@ -98,9 +134,9 @@ that are commonly used by quarterly national accounts.
 
 ## How to use annualBenchmark or twoStepsBenchark
 
-benchmark <- annualBenchmark(hfserie = turnover,
-                            lfserie = construction,
-                            include.differenciation = TRUE)
+benchmark <- twoStepsBenchmark(hfserie = turnover,
+                               lfserie = construction,
+                               include.differenciation = TRUE)
 as.ts(benchmark)
 coef(benchmark)
 summary(benchmark)
@@ -109,10 +145,10 @@ autoplot(in_sample(benchmark))
 
 ## How to manually set the coefficient
 
-benchmark2 <- annualBenchmark(hfserie = turnover,
-                              lfserie = construction,
-                              include.differenciation = TRUE,
-                              set.coeff = 0.1)
+benchmark2 <- twoStepsBenchmark(hfserie = turnover,
+                                lfserie = construction,
+                                include.differenciation = TRUE,
+                                set.coeff = 0.1)
 coef(benchmark2)
 
 }

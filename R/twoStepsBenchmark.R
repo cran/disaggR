@@ -8,8 +8,8 @@ residuals_extrap_sequence <- function(u0,u1,rho,n,include.differenciation) {
 
 #' Extrapolation function for the residuals in a twoStepsBenchmark
 #' 
-#' This function is the rule to extrapolate the low-frequency residuals
-#' If include.differenciation is true, u(n+1)-u(n) = rho*(u(n)-u(n-1))
+#' This function is the rule to extrapolate the low-frequency residuals.
+#' If include.differenciation is `TRUE`, u(n+1)-u(n) = rho*(u(n)-u(n-1))
 #' Else u(n+1) = rho * u(n)
 #'
 #' @param lfresiduals the residuals to extrapolate
@@ -41,7 +41,7 @@ residuals_extrap <- function(lfresiduals,rho,include.differenciation) {
         residuals_extrap_sequence(lfresiduals[firstval+1L],
                                   lfresiduals[firstval],
                                   rhoinverse,
-                                  firstval-1,
+                                  firstval-1L,
                                   include.differenciation)
     }
   }
@@ -53,11 +53,9 @@ regression_estimation <- function(hfserie,lfserie,
                                   start.coeff.calc,end.coeff.calc,
                                   set_coefficients,cl) {
   y <- window(lfserie,start=start.coeff.calc,end=end.coeff.calc,extend = TRUE)
-  tspy <- tsp(y)
-  x <- aggregate.ts(
-    window(hfserie,tspy[1L],tspy[2L]+1/tspy[3L]-1/frequency(hfserie),extend = TRUE),
-    nfrequency = tspy[3L]
-  )
+  
+  x <- aggregate_and_crop_hf_to_lf(hfserie,y)
+  
   praislm(x,y,include.rho,include.differenciation,set_coefficients,cl)
 }
 
@@ -88,7 +86,7 @@ eval_smoothed_part <- function(hfserie_fitted,lfserie,include.differenciation,rh
   }
 }
 
-#' @importFrom utils head
+#' @include s4declaration.R
 twoStepsBenchmark_impl <- function(hfserie,lfserie,
                                    include.differenciation,include.rho,
                                    set_coefficients,
@@ -98,50 +96,59 @@ twoStepsBenchmark_impl <- function(hfserie,lfserie,
                                    maincl,cl=NULL,set.smoothed.part=NULL) {
   if (is.null(cl)) cl <- maincl
   
-  hfserie <- window(hfserie,start.domain,end.domain,extend=TRUE)
-  
   regresults     <- regression_estimation(hfserie,lfserie,
                                           include.differenciation,include.rho,
                                           start.coeff.calc,end.coeff.calc,
                                           set_coefficients,cl)
   
+  hfserie_cropped <- window(hfserie,start=start.domain,end=end.domain,extend=TRUE)
+  
   lfserie_cropped <- window(lfserie,start=start.benchmark,end=end.benchmark,extend=TRUE)
   
-  hfserie_fitted <- coefficients_application(hfserie,lfserie_cropped,regresults$coefficients)
+  hfserie_fitted  <- coefficients_application(hfserie_cropped,lfserie_cropped,regresults$coefficients)
   
-  smoothed_part  <- eval_smoothed_part(hfserie_fitted,lfserie_cropped,include.differenciation,regresults$rho,set.smoothed.part)
+  smoothed_part   <- eval_smoothed_part(hfserie_fitted,lfserie_cropped,include.differenciation,regresults$rho,set.smoothed.part)
   
   rests <- hfserie_fitted + window(smoothed_part,start=start(hfserie_fitted),end = end(hfserie_fitted),extend=TRUE)
   
-  res <- list(benchmarked.serie = window(rests,start=tsp(hfserie)[1],end=tsp(hfserie)[2],extend = TRUE),
-              fitted.values = window(hfserie_fitted,end=tsp(hfserie)[2],extend = TRUE),
+  res <- list(benchmarked.serie = window(rests,start=tsp(hfserie_cropped)[1],end=tsp(hfserie_cropped)[2],extend = TRUE),
+              fitted.values = window(hfserie_fitted,start=tsp(hfserie_cropped)[1],end=tsp(hfserie_cropped)[2],extend = TRUE),
               regression = regresults,
               smoothed.part = smoothed_part,
-              model.list = list(hfserie = hfserie,
-                                lfserie =lfserie,
-                                include.rho = include.rho,
-                                include.differenciation=include.differenciation,
-                                set.coefficients=set_coefficients,
-                                start.coeff.calc = start.coeff.calc,
-                                end.coeff.calc = end.coeff.calc,
-                                start.benchmark = start.benchmark,
-                                end.benchmark = end.benchmark,
-                                start.domain = start.domain,
-                                end.domain = end.domain),
-              call = cl)
-  class(res) <- c("twoStepsBenchmark","list")
-  res
+              model.list = c(list(hfserie = hfserie,
+                                  lfserie = lfserie,
+                                  include.rho = include.rho,
+                                  include.differenciation = include.differenciation,
+                                  set.coefficients = set_coefficients,
+                                  start.coeff.calc = start.coeff.calc,
+                                  end.coeff.calc = end.coeff.calc,
+                                  start.benchmark = start.benchmark,
+                                  end.benchmark = end.benchmark,
+                                  start.domain = start.domain,
+                                  end.domain = end.domain),
+                             if (!is.null(set.smoothed.part)) list(set.smoothed.part=set.smoothed.part)),
+                             call = cl)
+              
+              new("twoStepsBenchmark",res)
 }
 
-#' Bends a time-serie with a lower frequency one
+#' @title Regress and bends a time-serie with a lower frequency one
 #' 
-#' twoStepsBenchmark bends a time-serie with a time-serie of a lower frequency.
+#' @description twoStepsBenchmark bends a time-serie with a time-serie of a lower frequency.
 #' The procedure involved is a Prais-Winsten regression, then an additive
 #' Denton benchmark.
-#' annualBenchmark is a wrapper of the main function, that applies more specifically
+#' 
+#' Therefore, the resulting time-serie is the sum of a regression fit, eventually
+#' reintegrated, and of a smoothed part. The smoothed part minimizes the sum of squares
+#' of its differences.
+#' 
+#' The resulting time-serie is equal to the low-frequency serie after aggregation
+#' within the benchmark window.
+#'
+#' @details annualBenchmark is a wrapper of the main function, that applies more specifically
 #' to annual series, and changes the default window parameters to the ones
 #' that are commonly used by quarterly national accounts.
-#' 
+#'   
 #' @aliases annualBenchmark
 #' @usage
 #' twoStepsBenchmark(hfserie,lfserie,include.differenciation=FALSE,include.rho=FALSE,
@@ -150,73 +157,101 @@ twoStepsBenchmark_impl <- function(hfserie,lfserie,
 #'                   start.benchmark=NULL,end.benchmark=NULL,
 #'                   start.domain=NULL,end.domain=NULL,...)
 #'
-#' annualBenchmark(hfserie,lfserie,include.differenciation=FALSE,include.rho=FALSE,
+#'
+#' annualBenchmark(hfserie,lfserie,
+#'                 include.differenciation=FALSE,include.rho=FALSE,
 #'                 set.coeff=NULL,set.const=NULL,
-#'                 start.coeff.calc=start(lfserie)[1],end.coeff.calc=end(lfserie)[1],
-#'                 start.benchmark=start(lfserie)[1],end.benchmark=end.coeff.calc+1,
+#'                 start.coeff.calc=start(lfserie)[1L],
+#'                 end.coeff.calc=end(lfserie)[1L],
+#'                 start.benchmark=start(lfserie)[1L],
+#'                 end.benchmark=end.coeff.calc[1L]+1L,
 #'                 start.domain=start(hfserie),
-#'                 end.domain=c(end.benchmark+2,frequency(hfserie)))
+#'                 end.domain=c(end.benchmark[1L]+2L,frequency(hfserie)))
 #' 
 #' @param hfserie the bended time-serie. It can be a matrix time-serie.
 #' @param lfserie a time-serie whose frequency divides the frequency of `hfserie`.
 #' @param include.differenciation a boolean of length 1. If `TRUE`, `lfserie` and
 #' `hfserie` are differenced before the estimation of the regression.
-#' @param include.rho a boolean of length 1. If `TRUE`, the regression includes an autocorrelation
-#' parameter for the residuals. The applied procedure is a Prais-Winsten estimation.
-#' @param set.coeff an optional double, that allows the user to set the regression coefficients instead
-#' of evaluating them.
-#' If `hfserie` is a matrix, each column initializes a coefficient with the same name as the column name.
-#' Hence, `set.coeff` has to be a named double, which will optionally set some coefficients instead of
-#' evaluating them. 
-#' @param set.const an optional double of length 1, that sets the regression constant.
-#' The constant is actually an automatically added column to `hfserie`. Using `set.constant=3`
-#' is equivalent to using `set.coeff=c(constant=3)`.
-#' @param start.coeff.calc an optional start for the estimation of the coefficients of the regression.
-#' Should be a double or a numeric of length 2, like a window for `lfserie`. If NULL, the start is defined by lfserie's window.
-#' @param end.coeff.calc an optional end for the estimation of the coefficients of the regression.
-#' Should be a double or a numeric of length 2, like a window for `lfserie`. If NULL, the end is defined by lfserie's window.
+#' @param include.rho a boolean of length 1. If `TRUE`, the regression includes
+#' an autocorrelation parameter for the residuals. The applied procedure is a
+#' Prais-Winsten estimation.
+#' @param set.coeff an optional numeric, that allows the user to set the
+#' regression coefficients instead of evaluating them.
+#' If `hfserie` is a matrix, each column initializes a coefficient with the same
+#' name as the column name.
+#' Hence, `set.coeff` has to be a named numeric, which will optionally set some
+#' coefficients instead of evaluating them. 
+#' @param set.const an optional numeric of length 1, that sets the regression
+#' constant.
+#' The constant is actually an automatically added column to `hfserie`. Using
+#' `set.constant=3` is equivalent to using `set.coeff=c(constant=3)`.
+#' @param start.coeff.calc an optional start for the estimation of the
+#' coefficients of the regression.
+#' Should be a numeric of length 1 or 2, like a window for `lfserie`. If NULL,
+#' the start is defined by lfserie's window.
+#' @param end.coeff.calc an optional end for the estimation of the coefficients
+#' of the regression.
+#' Should be a numeric of length 1 or 2, like a window for `lfserie`. If NULL,
+#' the end is defined by lfserie's window.
 #' @param start.benchmark an optional start for `lfserie` to bend `hfserie`.
-#' Should be a double or a numeric of length 2, like a window for `lfserie`. If NULL, the start is defined by lfserie's window.
+#' Should be a numeric of length 1 or 2, like a window for `lfserie`. If NULL,
+#' the start is defined by lfserie's window.
 #' @param end.benchmark an optional end for `lfserie` to bend `hfserie`.
-#' Should be a double or a numeric of length 2, like a window for `lfserie`. If NULL, the start is defined by lfserie's window.
-#' @param start.domain the start of the output high-frequency serie. It also defines the smoothing window :
-#' The low-frequency residuals will be extrapolated until they contain the smallest low-frequency window that is around the high-frequency
-#' domain window.
-#' Should be a double or a numeric of length 2, like a window for `hfserie`. If NULL, the start is defined by hfserie's window.
-#' @param end.domain the end of the output high-frequency serie. It also defines the smoothing window :
-#' The low-frequency residuals will be extrapolated until they contain the smallest low-frequency window that is around the high-frequency
-#' domain window.
-#' Should be a double or a numeric of length 2, like a window for `hfserie`. If NULL, the start is defined by hfserie's window.
-#' @param \dots if the dots contain a cl item, its value overwrites the value
-#' of the returned call. This feature allows to build wrappers.
+#' Should be a numeric of length 1 or 2, like a window for `lfserie`. If NULL,
+#' the start is defined by lfserie's window.
+#' @param start.domain an optional for the output high-frequency serie. It also
+#' defines the smoothing window :
+#' The low-frequency residuals will be extrapolated until they contain the
+#' smallest low-frequency window that is around the high-frequency domain
+#' window.
+#' Should be a numeric of length 1 or 2, like a window for `hfserie`. If NULL,
+#' the start is defined by hfserie's window.
+#' @param end.domain an optional end for the output high-frequency serie. It
+#' also defines the smoothing window :
+#' The low-frequency residuals will be extrapolated until they contain the
+#' smallest low-frequency window that is around the high-frequency domain
+#' window.
+#' Should be a numeric of length 1 or 2, like a window for `hfserie`. If NULL,
+#' the start is defined by hfserie's window.
+#' @param \dots if the dots contain a cl item, its value overwrites the value of
+#' the returned call. This feature allows to build wrappers.
 #' @return
 #' twoStepsBenchark returns an object of class "`twoStepsBenchmark`".
 #' 
-#' The function `summary` can be used to obtain and print a summary of the regression used by the benchmark.
-#' The functions `plot` and `autoplot` (the latter requires to load \pkg{ggplot2}) produces graphics of the benchmarked
-#' serie and the bending serie.
-#' The function \link{in_sample} produces in-sample predictions with the inner regression.
-#' The generic accessor functions `as.ts`, `prais`, `coefficients`, `residuals`, `fitted.values`, `model.list`, `se`, `rho`
-#' extract various useful features of the returned value.
+#' The function `summary` can be used to obtain and print a summary of the
+#' regression used by the benchmark.
+#' The functions `plot` and `autoplot` (the generic from \pkg{ggplot2}) produce
+#' graphics of the benchmarked serie and the bending serie.
+#' The functions \link{in_disaggr}, \link{in_revisions}, \link{in_scatter}
+#' produce comparisons on which plot and autoplot can also be used.
 #' 
-#' An object of class "`twoStepsBenchmark`" is a list containing the following components :
-#'   \item{benchmarked.serie}{a time-serie, that is the result of the benchmark.}
-#'   \item{fitted.values}{a time-serie, that is the high-frequency serie as it is
-#'   after having applied the regression coefficients.
-#'   The difference `benchmarked.serie` - `fitted.values` is then a smoothed residual, eventually integrated
-#'   if `include.differenciation=TRUE`.}
-#'   \item{regression}{an object of class praislm, it is the regression on which relies the
-#'   benchmark. It can be extracted with the function \link{prais}}
+#' The generic accessor functions `as.ts`, `prais`, `coefficients`, `residuals`,
+#' `fitted.values`, `model.list`, `se`, `rho` extract various useful features of
+#' the returned value.
+#' 
+#' An object of class "`twoStepsBenchmark`" is a list containing the following
+#' components :
+#'   \item{benchmarked.serie}{a time-serie, that is the result of the
+#'   benchmark.}
+#'   \item{fitted.values}{a time-serie, that is the high-frequency serie as it
+#'   is after having applied the regression coefficients.
+#'   The difference `benchmarked.serie` - `fitted.values` is then a smoothed
+#'   residual, eventually integrated if `include.differenciation=TRUE`.}
+#'   \item{regression}{an object of class praislm, it is the regression on which
+#'   relies the benchmark. It can be extracted with the function \link{prais}}
 #'   \item{smoothed.part}{the smoothed part of the two-steps benchmark.}
-#'   \item{model.list}{a list containing all the arguments submitted to the function.}
-#'   \item{call}{the matched call (either of twoStepsBenchmark or annualBenchmark)}
+#'   \item{model.list}{a list containing all the arguments submitted to the
+#'   function.}
+#'   \item{call}{the matched call (either of twoStepsBenchmark or
+#'   annualBenchmark)}
+#'   
 #' @examples
 #' 
 #' ## How to use annualBenchmark or twoStepsBenchark
 #' 
-#' benchmark <- annualBenchmark(hfserie = turnover,
-#'                             lfserie = construction,
-#'                             include.differenciation = TRUE)
+#' benchmark <- twoStepsBenchmark(hfserie = turnover,
+#'                                lfserie = construction,
+#'                                include.differenciation = TRUE)
 #' as.ts(benchmark)
 #' coef(benchmark)
 #' summary(benchmark)
@@ -225,18 +260,21 @@ twoStepsBenchmark_impl <- function(hfserie,lfserie,
 #' 
 #' ## How to manually set the coefficient
 #' 
-#' benchmark2 <- annualBenchmark(hfserie = turnover,
-#'                               lfserie = construction,
-#'                               include.differenciation = TRUE,
-#'                               set.coeff = 0.1)
+#' benchmark2 <- twoStepsBenchmark(hfserie = turnover,
+#'                                 lfserie = construction,
+#'                                 include.differenciation = TRUE,
+#'                                 set.coeff = 0.1)
 #' coef(benchmark2)
 #'
 #' @export
-twoStepsBenchmark <- function(hfserie,lfserie,include.differenciation=FALSE,include.rho=FALSE,set.coeff=NULL,set.const=NULL,
+twoStepsBenchmark <- function(hfserie,lfserie,
+                              include.differenciation=FALSE,include.rho=FALSE,
+                              set.coeff=NULL,set.const=NULL,
                               start.coeff.calc=NULL,end.coeff.calc=NULL,
                               start.benchmark=NULL,end.benchmark=NULL,
-                            start.domain=NULL,end.domain=NULL,...) {
-  if ( !is.ts(lfserie) || !is.ts(hfserie) ) stop("Not a ts object", call. = FALSE)
+                              start.domain=NULL,end.domain=NULL,...) {
+  if ( !is.ts(lfserie) || !is.ts(hfserie) ) stop("Not a ts object",
+                                                 call. = FALSE)
   tsplf <- tsp(lfserie)
   if (as.integer(tsplf[3L]) != tsplf[3L]) stop("The frequency of the smoothed serie must be an integer", call. = FALSE)
   if  (!(frequency(hfserie) %% frequency(lfserie) == 0L)) stop("The low frequency should divide the higher one", call. = FALSE)
@@ -251,14 +289,16 @@ twoStepsBenchmark <- function(hfserie,lfserie,include.differenciation=FALSE,incl
     if (include.differenciation) 1L:NROW(hfserie)*(frequency(lfserie)/frequency(hfserie))^2
     else                         rep(frequency(lfserie)/frequency(hfserie),NROW(hfserie))
   }
- 
+  
   if (length(set.const) > 1L) stop("set.const must be of a single value", call. = FALSE)
   if (length(set.const) == 1L) names(set.const) <- "constant"
   if ((NCOL(hfserie) == 1L) && (length(set.coeff) == 1L)) names(set.coeff) <- "hfserie"
   
   if (is.matrix(hfserie) && is.null(colnames(hfserie))) stop("The high-frequency mts must have column names", call. = FALSE)
   
-  hfserie <- ts(matrix(c(constant,hfserie),nrow = NROW(hfserie),ncol = NCOL(hfserie) + 1L),
+  hfserie <- ts(matrix(c(constant,hfserie),
+                       nrow = NROW(hfserie),
+                       ncol = NCOL(hfserie) + 1L),
                 start = start(hfserie),
                 frequency = frequency(hfserie),
                 names = c("constant",if (is.null(colnames(hfserie))) "hfserie" else colnames(hfserie)))
@@ -273,10 +313,16 @@ twoStepsBenchmark <- function(hfserie,lfserie,include.differenciation=FALSE,incl
 }
 
 #' @export
-annualBenchmark <- function(hfserie,lfserie,include.differenciation=FALSE,include.rho=FALSE,set.coeff=NULL,set.const=NULL,
-                            start.coeff.calc=start(lfserie)[1L],end.coeff.calc=end(lfserie)[1L],
-                            start.benchmark=start(lfserie)[1L],end.benchmark=end.coeff.calc+1,
-                            start.domain=start(hfserie),end.domain=c(end.benchmark+2,frequency(hfserie))) {
+annualBenchmark <- function(hfserie,lfserie,
+                            include.differenciation=FALSE,include.rho=FALSE,
+                            set.coeff=NULL,set.const=NULL,
+                            start.coeff.calc=start(lfserie)[1L],
+                            end.coeff.calc=end(lfserie)[1L],
+                            start.benchmark=start(lfserie)[1L],
+                            end.benchmark=end.coeff.calc[1L]+1L,
+                            start.domain=start(hfserie),
+                            end.domain=c(end.benchmark[1L]+2L,frequency(hfserie))) {
+  
   if (frequency(lfserie) != 1) stop("Not an annual time-serie", call. = FALSE)
   twoStepsBenchmark(hfserie,lfserie,
                     include.differenciation,include.rho,
@@ -286,26 +332,28 @@ annualBenchmark <- function(hfserie,lfserie,include.differenciation=FALSE,includ
                     start.domain,end.domain,cl=match.call())
 }
 
-#' Using the same estimated benchmark model on another time-serie
+#' Using an estimated benchmark model on another time-serie
 #' 
-#' This function reapplies the coefficients and parameters of a benchmark
-#' on new time-serie.
+#' This function reapplies the coefficients and parameters of a benchmark on new
+#' time-serie.
 #'
-#' reUseBenchmark is primarily meant to be used on a serie that is derived from the previous
-#' one, after some modifications that would bias the estimation otherwise. Working-day adjustment
-#' is a good example. Hence, by default, the smoothed part of the first model isn't
-#' reevaluated ; the aggregated benchmarked serie isn't equal to the low-frequency serie.
+#' `reUseBenchmark` is primarily meant to be used on a serie that is derived
+#' from the previous one, after some modifications that would bias the
+#' estimation otherwise. Working-day adjustment is a good example. Hence, by
+#' default, the smoothed part of the first model isn't reevaluated ; the
+#' aggregated benchmarked serie isn't equal to the low-frequency serie.
 #' 
 #' @usage
 #' reUseBenchmark(hfserie,benchmark,reeval.smoothed.part=FALSE)
 #' 
-#' @param hfserie the bended time-serie. If it is a matrix time-serie, it has to have the
-#' same column names than the `hfserie` used for the benchmark.
-#' @param benchmark a twoStepsBenchmark object, from which the parameters and coefficients
-#' are taken
-#' @param reeval.smoothed.part a boolean of length 1. If `TRUE`, the smoothed part is
-#' reevaluated, hence the aggregated benchmarked serie is equal to the low-frequency serie.
-#' @return twoStepsBenchark returns an object of class \link{twoStepsBenchmark}.
+#' @param hfserie the bended time-serie. If it is a matrix time-serie, it has to
+#' have the same column names than the `hfserie` used for the benchmark.
+#' @param benchmark a twoStepsBenchmark object, from which the parameters and
+#' coefficients are taken.
+#' @param reeval.smoothed.part a boolean of length 1. If `TRUE`, the smoothed
+#' part is reevaluated, hence the aggregated benchmarked serie is equal to the
+#' low-frequency serie.
+#' @return `reUseBenchmark` returns an object of class \link{twoStepsBenchmark}.
 #' @examples 
 #' benchmark <- twoStepsBenchmark(turnover,construction) 
 #' turnover_modif <- turnover

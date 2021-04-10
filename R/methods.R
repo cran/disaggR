@@ -19,6 +19,7 @@ residuals.praislm <- function(object, ...) object$residuals
 #' @examples
 #' benchmark <- twoStepsBenchmark(turnover,construction,include.rho = TRUE); rho(benchmark)
 #'
+#' @keywords internal
 #' @export
 rho <- function(object) UseMethod("rho")
 #' @export
@@ -35,9 +36,10 @@ model.list.praislm <- function(object) object$model.list
 #' se(object)
 #' @param object a praislm or twoStepsBenchmark object.
 #' @return
-#' a double, that is named the same way that the coefficients are.
+#' a numeric, that is named the same way that the coefficients are.
 #' If some coefficients are set by the user, they return `NA` as for
 #' their standard error.
+#' @keywords internal
 #' @export
 se <- function(object) UseMethod("se")
 #' @export
@@ -62,7 +64,7 @@ vcov.praislm <- function(object, ...) {
   m <- model.list(object)
   X <- m$X[,!(colnames(m$X) %in% names(m$set.coefficients))]
   if (m$include.differenciation) X <- diff(X)
-
+  
   epsilon_variance*solve(crossprod(X,omega_inv)%*%X)
 }
 
@@ -96,9 +98,10 @@ summary.praislm <- function (object, ...) {
   adj.r.squared <- 1 - (1 - r.squared) * n/rdf
   rho <- object$rho
   
-  pm <- rbind(residuals=do.call(c,Box.test(object$residuals, lag = 1, type = "Ljung-Box")[c("statistic","p.value")]),
-              if (rho != 0) residuals.decorrelated=do.call(c,Box.test(object$residuals.decorrelated, lag = 1, type = "Ljung-Box")[c("statistic","p.value")]))
-  colnames(pm) <- c("statistic","p.value")
+  pm <- rbind(matrix(do.call(c,Box.test(object$residuals, lag = 1, type = "Ljung-Box")[c("statistic","p.value")]),
+                     dimnames = list("residuals",c("statistic","p.value")),nrow = 1L),
+              if (rho != 0) matrix(do.call(c,Box.test(object$residuals.decorrelated, lag = 1, type = "Ljung-Box")[c("statistic","p.value")]),
+                                   dimnames = list("residuals.decorrelated",c("statistic","p.value")),nrow = 1L))
   
   incdiff <- model.list(object)$include.differenciation
   
@@ -142,12 +145,12 @@ print.summary.praislm <- function (x, digits=max(3, getOption("digits") - 3),
   pm <- x$pm
   if (x$rho==0) {
     rownames(pm) <- "u"
-    mes <- "Where Y=X*C+u"
+    mes <- "Where Y = X %*% coefficients + u"
   } else {
     rownames(pm) <- c("u","epsilon")
-    mes <- c("Where Y=X*C+u","Where u=rho*lag(u)+epsilon")
+    mes <- c("Where Y = X %*% coefficients + u","Where u = rho * lag(u) + epsilon")
   }
-
+  
   pm <- formatC(pm,digits=digits)
   if (signif.stars) {
     Signif <- symnum(x$pm[,"p.value"], corr = FALSE, na = FALSE, 
@@ -161,13 +164,12 @@ print.summary.praislm <- function (x, digits=max(3, getOption("digits") - 3),
 
 #' Extracting the regression of a twoStepsBenchmark
 #' 
-#' prais is a function which extracts the regression, a praislm object,
-#' of a twoStepsBenchmark.
+#' prais extracts the regression, which is an object of class `"praislm"`, of a
+#' twoStepsBenchmark object.
 #' 
-#' @aliases praislm
 #' @param x a twoStepsBenchmark
 #' @return
-#' prais returns an object of class "`praislm`".
+#' prais returns an object of class `"praislm"`.
 #' 
 #' The functions that can be used on that class are almost the same than
 #' for the class `twoStepsBenchmark`.
@@ -176,7 +178,7 @@ print.summary.praislm <- function (x, digits=max(3, getOption("digits") - 3),
 #' of the regression, not the high-frequency, eventually integrated, time-serie
 #' contained in a twoStepsBenchmark.
 #' 
-#' An object of class "`praislm`" is a list containing the following components :
+#' An object of class `"praislm"` is a list containing the following components :
 #'   \item{coefficients}{a named vector of coefficients.}
 #'   \item{residuals}{the residuals, that is response minus fitted values.}
 #'   \item{fitted.values}{a time-serie, the fitted mean values}
@@ -186,8 +188,8 @@ print.summary.praislm <- function (x, digits=max(3, getOption("digits") - 3),
 #'   is equal to zero if twoStepsBenchmark was called with `include.rho=FALSE`}
 #'   \item{residuals.decorrelated}{the residuals of the model after having been
 #'   transformed by rho in a least square model.}
-#'   \item{fitted.values.decorrelated}{the fitted values of the model after having been
-#'   transformed by rho in a least square model.}
+#'   \item{fitted.values.decorrelated}{the fitted values of the model after
+#'   having been transformed by rho in a least square model.}
 #' @examples
 #' benchmark <- twoStepsBenchmark(turnover,construction); prais(benchmark)
 #' @export
@@ -198,6 +200,10 @@ prais <- function(x) x$regression
 #' @importFrom stats as.ts
 #' @export
 as.ts.twoStepsBenchmark <- function(x, ...) x$benchmarked.serie
+
+#' @export
+as.list.twoStepsBenchmark <- function(x, ...) structure(x@.Data,
+                                                        names=names(x))
 
 #' @importFrom stats coef
 #' @export
@@ -217,20 +223,23 @@ fitted.twoStepsBenchmark <- function(object, ...) object$fitted.values
 
 #' Extracting all the arguments submitted to generate an object
 #' 
-#' The function `model.list` returns the arguments submitted
-#' to the function \link{praislm} or a \link{twoStepsBenchmark}.
+#' The function `model.list` returns the arguments submitted to the function
+#' used to generate the object of class `"twoStepsBenchmark"`, 
+#' `"threeRuleSmooth"` or `"praislm"`.
 #' 
 #' These are returned as they are after evaluation, model.list doesn't
 #' return a call.
 #'   
 #' @usage
 #' model.list(object)
-#' @param object a praislm or twoStepsBenchmark object.
+#' @param object an object of class `"twoStepsBenchmark"`, `"threeRuleSmooth"` 
+#' or `"praislm"`.
 #' @return
 #' a list containing every evaluated arguments
 #' @examples
 #' benchmark <- twoStepsBenchmark(turnover,construction); model.list(benchmark)
-#'
+#' 
+#' @keywords internal
 #' @export
 model.list <- function(object) UseMethod("model.list")
 #' @export
@@ -243,7 +252,7 @@ model.list.twoStepsBenchmark <- function(object) object$model.list
 #' aggregated regression, with some differences :
 #'    * it is eventually integrated if `include.differenciation=TRUE`.
 #'    * it is extrapolated to match the domain window.
-#'    * it is smoothed with an additive Denton benchmark.
+#'    * it is smoothed using the \link{bflSmooth} function.
 #'   
 #' @usage
 #' smoothed.part(object)
@@ -253,6 +262,7 @@ model.list.twoStepsBenchmark <- function(object) object$model.list
 #' @examples
 #' benchmark <- twoStepsBenchmark(turnover,construction); smoothed.part(benchmark)
 #'
+#' @keywords internal
 #' @export
 smoothed.part <- function(object) UseMethod("smoothed.part")
 #' @export
@@ -275,3 +285,123 @@ print.twoStepsBenchmark <- function(x,...) {
 summary.twoStepsBenchmark <- function(object, ...) {
   summary.praislm(prais(object),...)
 }
+
+#' @importFrom stats as.ts
+#' @export
+as.ts.threeRuleSmooth <- function(x, ...) x$benchmarked.serie
+
+#' @export
+as.list.threeRuleSmooth <- function(x, ...) structure(x@.Data,
+                                                      names=names(x))
+
+#' Extracting the rate of a threeRuleSmooth
+#' 
+#' The function `smoothed.rate` returns the high-frequency rate
+#' from a \link{threeRuleSmooth} object.
+#' @usage
+#' smoothed.rate(object)
+#' @param object a threeRuleSmooth object.
+#' @examples
+#' benchmark <- threeRuleSmooth(turnover,construction); smoothed.rate(benchmark)
+#'
+#' @keywords internal
+#' @export
+smoothed.rate <- function(object) UseMethod("smoothed.rate")
+#' @export
+smoothed.rate.threeRuleSmooth <- function(object) object$smoothed.rate
+
+#' @export
+print.threeRuleSmooth <- function(x, digits = max(3L, getOption("digits") - 3L),
+                                  ...) {
+  cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+      "\n\n", sep = "")
+  cat("delta rate:\n")
+  cat(format(x$delta.rate, digits = digits))
+  cat("\n\n")
+  print(as.ts(x))
+  invisible(x)
+}
+
+#' @export
+model.list.threeRuleSmooth <- function(object) object$model.list
+
+#' @export
+Math.twoStepsBenchmark <- function(x, ...) get(.Generic)(as.ts(x))
+
+#' @export
+Math.threeRuleSmooth <- Math.twoStepsBenchmark
+
+#' @include s4declaration.R
+#' @export
+setMethod("Ops",signature = c("disaggR","vector"),
+          function(e1,e2) callGeneric(as.ts(e1),e2))
+#' @export
+setMethod("Ops",signature = c("vector","disaggR"),
+          function(e1,e2) callGeneric(e1,as.ts(e2)))
+#' @export
+setMethod("Ops",signature = c("ts","disaggR"),
+          function(e1,e2) callGeneric(e1,as.ts(e2)))
+#' @export
+setMethod("Ops",signature = c("disaggR","ts"),
+          function(e1,e2) callGeneric(as.ts(e1),e2))
+#' @export
+setMethod("Ops",signature = c("disaggR","disaggR"),
+          function(e1,e2) callGeneric(as.ts(e1),as.ts(e2)))
+
+#' @include twoStepsBenchmark.R
+#' @export
+setAs("twoStepsBenchmark","ts",function(from) as.ts(from))
+#' @include twoStepsBenchmark.R
+#' @export
+setAs("threeRuleSmooth","ts",function(from) as.ts(from))
+
+#' @include s4declaration.R
+#' @export
+setMethod("Math2","disaggR",
+          function(x,digits = 0) callGeneric(as.ts(x),digits))
+
+#' @include s4declaration.R
+#' @export
+setMethod("show","disaggR",
+          function(object) print(object))
+
+#' @importFrom stats aggregate
+#' @export
+aggregate.twoStepsBenchmark <- function(x, ...) aggregate(as.ts(x), ...)
+#' @importFrom stats cycle
+#' @export
+cycle.twoStepsBenchmark <- function(x, ...) cycle(as.ts(x), ...)
+#' @export
+diff.twoStepsBenchmark <- function(x, lag = 1, differences = 1, ...)  diff(as.ts(x), lag, differences, ...)
+#' @importFrom stats diffinv
+#' @export
+diffinv.twoStepsBenchmark <- function(x, lag = 1, differences = 1, xi, ...) diffinv(as.ts(x), lag, differences, xi, ...)
+#' @importFrom stats monthplot
+#' @export
+monthplot.twoStepsBenchmark <- function(x, ...) monthplot(as.ts(x), ...)
+#' @importFrom stats na.omit
+#' @export
+na.omit.twoStepsBenchmark <- function(object, ...) na.omit(as.ts(object), ...)
+#' @importFrom stats time
+#' @export
+time.twoStepsBenchmark <- function(x, ...) time(as.ts(x), ...)
+#' @importFrom stats window
+#' @export
+window.twoStepsBenchmark <- function(x, ...) window(as.ts(x), ...)
+
+#' @export
+aggregate.threeRuleSmooth <- aggregate.twoStepsBenchmark
+#' @export
+cycle.threeRuleSmooth <- cycle.twoStepsBenchmark
+#' @export
+diff.threeRuleSmooth <- diff.twoStepsBenchmark
+#' @export
+diffinv.threeRuleSmooth <- diffinv.twoStepsBenchmark
+#' @export
+monthplot.threeRuleSmooth <- monthplot.twoStepsBenchmark
+#' @export
+na.omit.threeRuleSmooth <- na.omit.twoStepsBenchmark
+#' @export
+time.threeRuleSmooth <- time.twoStepsBenchmark
+#' @export
+window.threeRuleSmooth <- window.twoStepsBenchmark

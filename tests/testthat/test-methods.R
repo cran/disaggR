@@ -4,7 +4,7 @@ test_that("print praislm", {
                                  include.differenciation = TRUE,
                                  include.rho = TRUE,
                                  set.const = pi^2)
-  expect_known_output(print(prais(benchmark)),"outputs/prais.txt",update=FALSE)
+  expect_snapshot_output(print(prais(benchmark)),cran = TRUE)
   benchmark <- twoStepsBenchmark(hfserie = turnover,
                                  lfserie = construction,
                                  include.differenciation = TRUE,
@@ -22,8 +22,13 @@ test_that("print praislm", {
                     -231003828.7,-135283645.5,331155559.0,169950995.2,-90566630.3,67288425.9,
                     123703311.7,238436884.6,219277478.2,130769309.3,-153197367.6,-70785583.2,
                     -224906369.3),start=2001,frequency=1))
-
+  
   expect_output(print(summary(prais(benchmark))),"^\nCall:\ntwoStepsBenchmark\\(hfserie = turnover, lfserie = construction(.*?)The model includes a differenciation.")
+})
+
+test_that("print threeRuleSmooth",{
+  expect_snapshot_output(print(threeRuleSmooth(turnover,construction)),
+                         cran = TRUE)
 })
 
 test_that("methods tests", {
@@ -38,7 +43,10 @@ test_that("methods tests", {
   expect_s3_class(residuals(benchmark),"ts")
   expect_equal(frequency(residuals(benchmark)),frequency(construction))
   expect_output(print(summary(benchmark)),"^\nCall:\ntwoStepsBenchmark\\(hfserie = turnover, lfserie = construction")
-  expect_known_output(print(benchmark),"outputs/benchmark.txt",update = FALSE)
+  expect_snapshot_output(print(benchmark),cran = TRUE)
+  expect_snapshot_output(show(benchmark),cran = TRUE)
+  expect_snapshot_output(show(threeRuleSmooth(turnover,construction)),
+                         cran = TRUE)
   
   a <- diff(aggregate(smoothed.part(benchmark)))
   b <- residuals(benchmark)
@@ -58,4 +66,134 @@ test_that("methods tests", {
   expect_equal(m$end.benchmark,2018)
   expect_equal(m$start.domain,2000)
   expect_equal(m$end.domain,c(2020,12))
+})
+
+test_that("as.list",
+          {
+            benchmark <- twoStepsBenchmark(turnover,construction)
+            
+            expect_identical(benchmark,
+                             new("twoStepsBenchmark",as.list(benchmark)))
+            
+            benchmark <- threeRuleSmooth(turnover,construction)
+            
+            expect_identical(benchmark,
+                             new("threeRuleSmooth",as.list(benchmark)))
+          })
+
+test_that("smoothed.rate",{
+  expect_true(all(abs(smoothed.rate(threeRuleSmooth(turnover,aggregate(turnover)*3))-3)<10^-5))
+})
+
+test_that("Math group generic",{
+  expect_identical(abs(twoStepsBenchmark(turnover,construction)),
+                   abs(as.ts(twoStepsBenchmark(turnover,construction))))
+  expect_identical(abs(threeRuleSmooth(turnover,construction)),
+                   abs(as.ts(threeRuleSmooth(turnover,construction))))
+})
+
+test_that("Math2 group generic",{
+  expect_identical(round(twoStepsBenchmark(turnover,construction),3),
+                   round(as.ts(twoStepsBenchmark(turnover,construction)),3))
+  expect_identical(round(threeRuleSmooth(turnover,construction),3),
+                   round(as.ts(threeRuleSmooth(turnover,construction)),3))
+})
+
+test_that("Math2 group generic",{
+  expect_identical(round(twoStepsBenchmark(turnover,construction),3),
+                   round(as.ts(twoStepsBenchmark(turnover,construction)),3))
+  expect_identical(round(threeRuleSmooth(turnover,construction),3),
+                   round(as.ts(threeRuleSmooth(turnover,construction)),3))
+})
+
+test_that("Ops group generic",{
+  tsnewobject_a <- twoStepsBenchmark(turnover,construction)
+  tsnewobject_b <- threeRuleSmooth(turnover,construction)
+  tsnewobject_c <- turnover
+
+  expect_identical(tsnewobject_a+tsnewobject_a,
+                   as.ts(tsnewobject_a)+as.ts(tsnewobject_a))
+  expect_identical(tsnewobject_b+tsnewobject_b,
+                   as.ts(tsnewobject_b)+as.ts(tsnewobject_b))
+  expect_identical(tsnewobject_a+tsnewobject_b,
+                   as.ts(tsnewobject_a)+as.ts(tsnewobject_b))
+  expect_identical(tsnewobject_b+tsnewobject_a,
+                   as.ts(tsnewobject_a)+as.ts(tsnewobject_b))
+  
+  expect_identical(tsnewobject_c+tsnewobject_a,
+                   as.ts(tsnewobject_a)+tsnewobject_c)
+  expect_identical(tsnewobject_a+tsnewobject_c,
+                   as.ts(tsnewobject_a)+tsnewobject_c)
+  expect_identical(tsnewobject_c+tsnewobject_b,
+                   as.ts(tsnewobject_b)+tsnewobject_c)
+  expect_identical(tsnewobject_b+tsnewobject_c,
+                   as.ts(tsnewobject_b)+tsnewobject_c)
+  
+  expect_identical(tsnewobject_a+1,
+                   as.ts(tsnewobject_a)+1)
+  expect_identical(tsnewobject_b+1,
+                   as.ts(tsnewobject_b)+1)
+  expect_identical(1+tsnewobject_a,
+                   as.ts(tsnewobject_a)+1)
+  expect_identical(1+tsnewobject_b,
+                   as.ts(tsnewobject_b)+1)
+  
+  expect_identical(tsnewobject_c+tsnewobject_c,
+                   2*tsnewobject_c)
+    # to ensure stats::Ops.ts has not been replaced
+})
+
+test_that("diverse ts methods",{
+  benchmark <- twoStepsBenchmark(turnover,construction)
+  smooth <- threeRuleSmooth(turnover,construction)
+  
+  expect_identical(aggregate(benchmark),
+                   aggregate(as.ts(benchmark)))
+  expect_identical(aggregate(smooth),
+                   aggregate(as.ts(smooth)))
+  
+  expect_identical(cycle(benchmark),
+                   cycle(as.ts(benchmark)))
+  expect_identical(cycle(smooth),
+                   cycle(as.ts(smooth)))
+  
+  expect_identical(diff(benchmark),
+                   diff(as.ts(benchmark)))
+  expect_identical(diff(smooth),
+                   diff(as.ts(smooth)))
+  
+  expect_identical(time(benchmark),
+                   time(as.ts(benchmark)))
+  expect_identical(time(smooth),
+                   time(as.ts(smooth)))
+  
+  expect_identical(diffinv(benchmark,xi = 0),
+                   diffinv(as.ts(benchmark),xi = 0))
+  expect_identical(diffinv(smooth,xi = 0),
+                   diffinv(as.ts(smooth),xi = 0))
+  
+  expect_identical(na.omit(benchmark),
+                   na.omit(as.ts(benchmark)))
+  expect_identical(na.omit(smooth),
+                   na.omit(as.ts(smooth)))
+  
+  expect_identical(window(benchmark,start=2001,end=c(2014,3)),
+                   window(as.ts(benchmark),start=2001,end=c(2014,3)))
+  expect_identical(window(smooth,start=2001,end=c(2014,3)),
+                   window(as.ts(smooth),start=2001,end=c(2014,3)))
+})
+
+test_that("monthplot ts method",{
+  benchmark <- twoStepsBenchmark(turnover,construction)
+  smooth <- threeRuleSmooth(turnover,construction)
+  expect_doppelganger <- function(title, fig) {
+    vdiffr::expect_doppelganger(title,
+                                fig,
+                                path = if (R.version$major>=4 && R.version$minor>=1.0) "/plots-R-4-1/" else "/plots-R-4-0/")
+  }
+  testthat::skip_if_not_installed("vdiffr")
+  expect_doppelganger("monthplot-twoStepsBenchmark",
+                      function() monthplot(benchmark))
+  expect_doppelganger("monthplot-threeRuleSmooth",
+                      function() monthplot(smooth))
 })

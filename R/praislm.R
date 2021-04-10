@@ -47,10 +47,10 @@ praislm_impl <- function(X,y,include.rho) {
         PQR <- qr(X_star)
         coefficients <- qr.coef(PQR,y_star)
         if (i == 50L) {
-          warning("Maximum iterations without convergence")
+          warning("Maximum iterations without convergence", call. = FALSE)
           break
         }
-        i <- i+1
+        i <- i+1L
       }
     }
     fitted <- X %*% coefficients
@@ -76,6 +76,8 @@ praislm_impl <- function(X,y,include.rho) {
        residuals.decorrelated=residuals_decor)
 }
 
+#' @rdname prais
+#' @keywords internal
 praislm <- function(X,y,include.rho,include.differenciation,set_coefficients,cl) {
   modellist <- list(X=X,
                     y=y,

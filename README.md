@@ -15,8 +15,8 @@ status](https://github.com/InseeFr/disaggR/workflows/R-CMD-check/badge.svg)](htt
 
 The R package disaggR is an implementation of the French Quarterly
 National Accounts method for temporal disaggregation of time-series.
-`twoStepsBenchmark()` bends a time-serie with another one of a lower
-frequency.
+`twoStepsBenchmark()` and `threeRuleSmooth()` bend a time-serie with
+another one of a lower frequency.
 
 ## Installation
 
@@ -39,7 +39,6 @@ install_github("InseeFr/disaggR")
 
 ``` r
 library(disaggR)
-library(ggplot2)
 
 benchmark <- twoStepsBenchmark(hfserie = turnover,
                                lfserie = construction,
@@ -47,8 +46,40 @@ benchmark <- twoStepsBenchmark(hfserie = turnover,
 as.ts(benchmark)
 coef(benchmark)
 summary(benchmark)
-autoplot(benchmark)
-autoplot(in_sample(benchmark))
+plot(benchmark)
+plot(in_sample(benchmark))
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="50%" /><img src="man/figures/README-unnamed-chunk-4-2.png" width="50%" />
+
+``` r
+plot(in_disaggr(benchmark,type="changes"),
+     start=c(2015,1),end=c(2020,12))
+plot(in_disaggr(benchmark,type="contributions"),
+     start=c(2015,1),end=c(2020,12))
+```
+
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="50%" /><img src="man/figures/README-unnamed-chunk-5-2.png" width="50%" />
+
+``` r
+plot(in_scatter(benchmark))
+
+new_benchmark <- twoStepsBenchmark(hfserie = turnover,
+                                   lfserie = construction,
+                                   include.differenciation = FALSE)
+plot(in_revisions(new_benchmark,
+                  benchmark),start = c(2010,1))
+```
+
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="50%" /><img src="man/figures/README-unnamed-chunk-6-2.png" width="50%" />
+
+## Shiny app
+
+You can also use the shiny application **reView**, to easily chose the
+best parameters for your benchmark.
+
+``` r
+reView(benchmark)
+```
+
+<img src="man/figures/shiny-screen.jpg" style="width:100.0%" alt="shinyscreen" />  

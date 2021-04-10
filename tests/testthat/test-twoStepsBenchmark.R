@@ -3,130 +3,130 @@ test_that("regression calculates the right coeffs", {
   mensualts <- ts(diffinv(rnorm(120,1,1)),start=2010,freq=12)
   annualts <- ts(diffinv(rnorm(9,12,1)),start=2010,freq=1)
   
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = FALSE))),
-               c(-4.42319837,0.07996253))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                           lfserie = annualts,
-                                           include.differenciation = FALSE,
-                                           set.const=-4.42319837,set.coeff=0.07996253))),
-               c(-4.42319837,0.07996253))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = FALSE,
-                                    set.const=-3))),
-               c(-3,0.07851836))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = FALSE,
-                                    set.const=10))),
-               c(10,0.06532678))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = FALSE,
-                                    set.coeff=-3))),
-               c(2264.80095,-3))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = FALSE,
-                                    set.coeff=10))),
-               c(-7313.2097,10))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = FALSE,
-                                    set.const=10))),
-               c(10.00000000,0.06532678))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = FALSE))),
+               c(-4.42319837305,0.07996253268))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = FALSE,
+                                             set.const=-4.42319837305,set.coeff=0.07996253268))),
+               c(-4.42319837305,0.07996253268))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = FALSE,
+                                             set.const=-3))),
+               c(-3,0.07851836099))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = FALSE,
+                                             set.const=10))),
+               c(10,0.06532678329))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = FALSE,
+                                             set.coeff=-3))),
+               c(2264.800948259,-3))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = FALSE,
+                                             set.coeff=10))),
+               c(-7313.2096909,10))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = FALSE,
+                                             set.const=10))),
+               c(10,0.06532678329))
   
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE))),
-               c(13.26837045,-0.008573728))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE,
-                                    set.const=-3))),
-               c(-3,0.09641138))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE,
-                                    set.const=10))),
-               c(10,0.01251813))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE,
-                                    set.coeff=-3))),
-               c(458.89076,-3))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE,
-                                    set.coeff=10))),
-               c(-1477.6741,10))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE,
-                                    set.const=10))),
-               c(10.00000000,0.01251813))
-
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE))),
-               c(13.26837045,-0.008573728))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE,
-                                    set.const=-3))),
-               c(-3,0.09641138))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE,
-                                    set.const=10))),
-               c(10,0.01251813))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE,
-                                    set.coeff=-3))),
-               c(458.89076,-3))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE,
-                                    set.coeff=10))),
-               c(-1477.6741,10))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.differenciation = TRUE,
-                                    set.const=10))),
-               c(10.00000000,0.01251813))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE))),
+               c(13.268370447389,-0.008573728055))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE,
+                                             set.const=-3))),
+               c(-3,0.0964113832))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE,
+                                             set.const=10))),
+               c(10,0.0125181346))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE,
+                                             set.coeff=-3))),
+               c(458.8907581,-3))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE,
+                                             set.coeff=10))),
+               c(-1477.674115137,10))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE,
+                                             set.const=10))),
+               c(10.00000000,0.0125181346))
   
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.rho = TRUE))),
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE))),
+               c(13.268370447389,-0.008573728055))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE,
+                                             set.const=-3))),
+               c(-3,0.0964113832))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE,
+                                             set.const=10))),
+               c(10,0.0125181346))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE,
+                                             set.coeff=-3))),
+               c(458.890758064,-3))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE,
+                                             set.coeff=10))),
+               c(-1477.674115137,10))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.differenciation = TRUE,
+                                             set.const=10))),
+               c(10,0.0125181346))
+  
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.rho = TRUE))),
                c(-4.39884838,0.07989426))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.rho = TRUE,
-                                    set.const=-3))),
-               c(-3,0.07853607))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.rho = TRUE,
-                                    set.const=10))),
-               c(10,0.06933154))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.rho = TRUE,
-                                    set.coeff=-3))),
-               c(2259.1761334,-3))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.rho = TRUE,
-                                    set.coeff=10))),
-               c(-7296.1085794,10))
-  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
-                                    lfserie = annualts,
-                                    include.rho = TRUE,
-                                    set.const=10))),
-               c(10,0.06933154))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.rho = TRUE,
+                                             set.const=-3))),
+               c(-3,0.07853606978))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.rho = TRUE,
+                                             set.const=10))),
+               c(10,0.06933153642))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.rho = TRUE,
+                                             set.coeff=-3))),
+               c(2259.176133,-3))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.rho = TRUE,
+                                             set.coeff=10))),
+               c(-7296.108579,10))
+  expect_equal(unname(coef(twoStepsBenchmark(hfserie = mensualts,
+                                             lfserie = annualts,
+                                             include.rho = TRUE,
+                                             set.const=10))),
+               c(10,0.06933153642))
 })
 test_that("Error if any missing value between the coefficient calc",{
   set.seed(5)
@@ -138,41 +138,36 @@ test_that("Error if any missing value between the coefficient calc",{
   expect_error(twoStepsBenchmark(mensualts,annualts,include.differenciation = TRUE))
   mensualts <- ts(diffinv(rnorm(36,1,1)),start=c(2010,1),freq=12)
   annualts <- ts(diffinv(rnorm(2,12,1)),start=2010,freq=1)
-  expect_s3_class(twoStepsBenchmark(mensualts,annualts,include.differenciation = TRUE),"twoStepsBenchmark")
+  expect_s4_class(twoStepsBenchmark(mensualts,annualts,include.differenciation = TRUE),"twoStepsBenchmark")
   mensualts[10] <- NA
   expect_error(twoStepsBenchmark(mensualts,annualts,include.differenciation = TRUE))
 })
 test_that("twoStepsBenchmark works",
           {
-  set.seed(5)
-  mensualts <- ts(diffinv(rnorm(30,1,1)),start=c(2010,4),freq=12)
-  trimts <- ts(diffinv(rnorm(2,12,1)),start=2011,freq=4)
-  bn <- twoStepsBenchmark(mensualts,trimts,include.differenciation = TRUE)
-  expect_equal(as.ts(bn),ts(c(-13.2250655390399,-11.7137209841592,-10.7287373045719,
-                              -9.11931306475712,-7.82345954003013,-6.91584498370111,
-                              -5.46078544573486,-4.0366520279386,-2.57391348874945,
-                              -1.19387012919245,0.0859065845360174,1.10796354465643,
-                              2.61006490598375,4.17807049258785,5.52777963978986,
-                              7.09374324740536,8.43906492834152,9.89280103027344,
-                              11.7218502943277,12.9773318186937,14.3511261089332,
-                              15.4505609135171,16.5402128681158,17.5054208765419,
-                              18.6506862539418,19.7694000952659,21.1512667853785,
-                              22.128153633179,23.0860732705669,24.5539473616461,
-                              26.0681162404146),start=c(2010,4),frequency=12))
-  set.seed(32)
-  mensualts <- ts(diffinv(rnorm(30,1,1)),start=c(2010,3),freq=12)
-  trimts <- ts(diffinv(rnorm(2,12,1)),start=2011,freq=4)
-  bn <- twoStepsBenchmark(mensualts,trimts,include.differenciation = TRUE)
-  expect_equal(aggregate(window(as.ts(bn),start=c(2010,4)),nf=4)-trimts,ts(c(0,0,0),start=2011,freq=4))
-})
+            set.seed(5)
+            mensualts <- ts(diffinv(rnorm(30,1,1)),start=c(2010,4),freq=12)
+            trimts <- ts(diffinv(rnorm(2,12,1)),start=2011,freq=4)
+            expect_snapshot(twoStepsBenchmark(mensualts,trimts,include.differenciation = TRUE),
+                            cran = TRUE)
+            set.seed(32)
+            mensualts <- ts(diffinv(rnorm(30,1,1)),start=c(2010,3),freq=12)
+            trimts <- ts(diffinv(rnorm(2,12,1)),start=2011,freq=4)
+            bn <- twoStepsBenchmark(mensualts,trimts,include.differenciation = TRUE)
+            expect_snapshot(bn, cran = TRUE)
+            expect_equal(aggregate(window(as.ts(bn),start=c(2010,4)),nf=4)-trimts,ts(c(0,0,0),start=2011,freq=4))
+            expect_snapshot(twoStepsBenchmark(turnover,construction,
+                                              include.differenciation = TRUE,
+                                              include.rho = TRUE),
+                            cran = TRUE)
+          })
 test_that("standard errors are the same that the vcov diag",{
   set.seed(5)
   mensualts <- ts(diffinv(rnorm(120,1,1)),start=2010,freq=12)
   annualts <- ts(diffinv(rnorm(9,12,1)),start=2010,freq=1)
   
-  bn <- annualBenchmark(hfserie = mensualts,
-                        lfserie = annualts,
-                        include.differenciation = FALSE)
+  bn <- twoStepsBenchmark(hfserie = mensualts,
+                          lfserie = annualts,
+                          include.differenciation = FALSE)
   stderror <- se(bn)
   stderror <- stderror[!is.na(stderror)]
   expect_equal(unname(stderror),unname(sqrt(abs(diag(vcov(bn))))))
@@ -180,16 +175,16 @@ test_that("standard errors are the same that the vcov diag",{
   set.seed(20)
   mensualts <- ts(diffinv(rnorm(240,1,1)),start=2010,freq=12)
   annualts <- ts(diffinv(rnorm(18,12,1)),start=2010,freq=1)
-  bn <- annualBenchmark(hfserie = mensualts,
-                        lfserie = annualts,
-                        include.differenciation = TRUE)
+  bn <- twoStepsBenchmark(hfserie = mensualts,
+                          lfserie = annualts,
+                          include.differenciation = TRUE)
   stderror <- se(bn)
   stderror <- stderror[!is.na(stderror)]
   expect_equal(unname(stderror),unname(sqrt(abs(diag(vcov(bn))))))
   
-  bn <- annualBenchmark(hfserie = mensualts,
-                        lfserie = annualts,
-                        include.differenciation = TRUE,set.coeff = 3)
+  bn <- twoStepsBenchmark(hfserie = mensualts,
+                          lfserie = annualts,
+                          include.differenciation = TRUE,set.coeff = 3)
   stderror <- se(bn)
   stderror <- stderror[!is.na(stderror)]
   expect_equal(unname(stderror),unname(sqrt(abs(diag(vcov(bn))))))
@@ -198,6 +193,7 @@ test_that("standard errors are the same that the vcov diag",{
 test_that("mts works",{
   bn <- twoStepsBenchmark(ts(matrix(rnorm(900,0,100) ,ncol=3),start=c(2000,1),freq=12) %>%
                             `colnames<-`(c("a","b","c")),construction)
+  expect_snapshot(bn, cran = TRUE)
   expect_identical(names(coef(bn)),c("constant","a","b","c"))
   
   mat <- cbind(turnover,lag(turnover))
@@ -219,7 +215,7 @@ test_that("The classes in the bn object are the good ones",{
   bn <- twoStepsBenchmark(hfserie = mensualts,
                           lfserie = trimts,
                           include.differenciation = TRUE)
-  expect_s3_class(bn,"twoStepsBenchmark")
+  expect_s4_class(bn,"twoStepsBenchmark")
   expect_true(is.ts(bn$benchmarked.serie))
   expect_true(is.ts(bn$fitted.values))
   expect_s3_class(bn$regression,"praislm")
@@ -317,21 +313,14 @@ test_that("errors",{
   
   expect_error(twoStepsBenchmark(turnover,construction,set.const=c(1,2)),
                regexp = "single value")
-  
-  set.seed(27)
-  mensualts <- ts(diffinv(rnorm(120,1,1)),start=2010,freq=12)
-  trimts <- ts(diffinv(rnorm(36,12,1)),start=2010,freq=4)
-  expect_error(annualBenchmark(mensualts,trimts),
-               "annual time-serie")
-  
   expect_error(twoStepsBenchmark(ts(matrix(rnorm(900,0,100) ,ncol=3),start=c(2000,1),freq=12) %>%
                                    `unname`,construction),
                regexp = "column names")
   expect_error(twoStepsBenchmark(ts(matrix(rnorm(900,0,100) ,ncol=3),start=c(2000,1),freq=12) %>%
-                                     `colnames<-`(c("a","b","c")),
+                                   `colnames<-`(c("a","b","c")),
                                  construction,
                                  set.coeff=1:4),
-                regexp = "empty or have names")
+               regexp = "empty or have names")
   expect_error(twoStepsBenchmark_impl(turnover,construction,
                                       start.coeff.calc = 2000,
                                       end.coeff.calc = 2010,
@@ -375,6 +364,7 @@ test_that("reUseBenchmark works",{
   expect_identical(m1$end.benchmark,m2$end.benchmark)
   expect_identical(m1$start.domain,m2$start.domain)
   expect_identical(m1$end.domain,m2$end.domain)
+  expect_identical(smoothed.part(benchmark1),m2$set.smoothed.part)
   
   expect_false(identical(smoothed.part(benchmark3),smoothed.part(benchmark1)))
   expect_identical(coefficients(benchmark1),coefficients(benchmark3))
@@ -386,6 +376,8 @@ test_that("reUseBenchmark works",{
   expect_identical(m1$end.benchmark,m3$end.benchmark)
   expect_identical(m1$start.domain,m3$start.domain)
   expect_identical(m1$end.domain,m3$end.domain)
+  expect_null(m1$set.smoothed.part)
+  expect_null(m3$set.smoothed.part)
   
   expect_false(identical(as.ts(benchmark3),as.ts(benchmark2)))
   
@@ -395,10 +387,61 @@ test_that("reUseBenchmark works",{
   benchmark2 <- reUseBenchmark(turnover_modif,benchmark)
   
   coefficients <- coef(benchmark)
-  expect_equivalent((as.ts(benchmark2)-as.ts(benchmark))[1],pi*coefficients[2])
+  expect_equal((as.ts(benchmark2)-as.ts(benchmark))[1],pi*coefficients[2],
+               ignore_attr = TRUE)
 })
 
 test_that("residuals extrap sequence doesn't bug if rho==1 and include.differenciation=TRUE",{
   sequence <- residuals_extrap_sequence(1,3,1,10,TRUE)
   expect_equal(sequence[-1]-sequence[-length(sequence)],rep(2,9))
 })
+
+test_that("annualBenchmark",{
+  set.seed(27)
+  mensualts <- ts(diffinv(rnorm(120,1,1)),start=2010,freq=12)
+  trimts <- ts(diffinv(rnorm(36,12,1)),start=2010,freq=4)
+  expect_error(annualBenchmark(mensualts,trimts),
+               "annual time-serie")
+  expect_snapshot(annualBenchmark(turnover,construction,
+                                  end.coeff.calc = 2018),
+                  cran = TRUE)
+  expect_equal(as.ts(annualBenchmark(turnover,construction,
+                               end.coeff.calc = 2018)),
+               as.ts(twoStepsBenchmark(turnover,construction,
+                                 end.coeff.calc = 2018,
+                                 end.benchmark = 2019,
+                                 end.domain = c(2021,12))))
+  
+  set.seed(5)
+  mensualts <- ts(diffinv(rnorm(120,1,1)),start=2010,freq=12)
+  annualts <- ts(diffinv(rnorm(9,12,1)),start=2010,freq=1)
+  
+  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
+                                           lfserie = annualts,
+                                           include.differenciation = FALSE))),
+               c(-4.42319837305,0.07996253268))
+  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
+                                           lfserie = annualts,
+                                           include.differenciation = FALSE,
+                                           set.const=-4.42319837305,set.coeff=0.07996253268))),
+               c(-4.42319837305,0.07996253268))
+  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
+                                           lfserie = annualts,
+                                           include.differenciation = FALSE,
+                                           set.const=-3))),
+               c(-3,0.07851836099))
+  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
+                                           lfserie = annualts,
+                                           include.differenciation = FALSE,
+                                           set.const=10))),
+               c(10,0.06532678329))
+  expect_equal(unname(coef(annualBenchmark(hfserie = mensualts,
+                                           lfserie = annualts,
+                                           include.differenciation = FALSE,
+                                           set.coeff=-3))),
+               c(2264.800948259,-3))
+  
+  expect_equal(as.ts(annualBenchmark(mensualts,annualts,end.coeff.calc = 2019)),
+               as.ts(annualBenchmark(mensualts,annualts,end.coeff.calc = c(2019,1))))
+})
+

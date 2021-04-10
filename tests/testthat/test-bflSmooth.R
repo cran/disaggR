@@ -32,7 +32,7 @@ test_that("Smoothing works", {
 })
 
 test_that("cache works for smoothing", {
-  bflSmooth_matrices_cache <- bflSmooth_matrices_generator()
+  bflSmooth_matrices_cache <- bflSmooth_matrices_factory()
   expect_identical(bflSmooth_matrices_cache(20,12,NULL,TRUE),bflSmooth_matrices_impl(20,12,NULL,TRUE))
   expect_identical(bflSmooth_matrices_cache(20,12,NULL,TRUE),bflSmooth_matrices_impl(20,12,NULL,TRUE))
   set.seed(10)
@@ -66,6 +66,8 @@ test_that("error weights", {
   expect_error(bflSmooth(aggregate(turnover,1),12,weights=window(cbind(turnover,turnover),start=c(2000,1),end=c(2019,12)))," must be one-dimensional")
   expect_error(bflSmooth(aggregate(turnover,1),12,weights=window(turnover,start=c(1999,1),end=c(2018,12),extend=TRUE)),"same start than the expected high-frequency")
   expect_error(bflSmooth(aggregate(turnover,1),12,weights=window(turnover,start=c(2000,1),extend=TRUE)),"same end than the expected high-frequency")
+  expect_warning(bflSmooth(construction,12,lfserie.is.rate = TRUE),
+                 "weights is NULL. Ignoring")
 })
 
 test_that("weights", {
