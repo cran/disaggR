@@ -1,4 +1,4 @@
-129c27912c1eb131f2b4c5442c2133e3 *DESCRIPTION
+b6e99db853a5f76a1c8841f48c247b68 *DESCRIPTION
 50e2c529dc824184723e64aa09e9591b *LICENSE
 4c400f9e1160c584ad56142cb8c116cd *NAMESPACE
 955f15cdc51c0185388f68e8b53f44c9 *NEWS.md
@@ -326,9 +326,9 @@ c6f5657725b637232e02f0e92c2b2dff *tests/testthat/_snaps/methods.md
 8c72ae8941250aff8616f908bdd44ebe *tests/testthat/shiny-withoutset/app.R
 30dc1dd1d0374d1b531b68468aedbf74 *tests/testthat/test-bflSmooth.R
 e4b69a271db7a32eae4655ba86aa98cd *tests/testthat/test-in.R
-44c5aa176ba4dbe57c144ba8a1ee244f *tests/testthat/test-methods.R
+96cb4dddb6c138d7dcecd071eab17cfe *tests/testthat/test-methods.R
 a3912bb06c2f54e27d47c437505caea5 *tests/testthat/test-plot.R
 11d6b9a6c8ecd87cafcfad31556d20e8 *tests/testthat/test-praislm.R
-0764d614d82a3aa248150e0bab93e3e0 *tests/testthat/test-reView.R
+ff2fdd94e4faa3b8f0818abd9531f41b *tests/testthat/test-reView.R
 6410c4d3d274651dd843f121a9560e7f *tests/testthat/test-threeRuleSmooth.R
 390013e0b796321582bb240f7181dbaf *tests/testthat/test-twoStepsBenchmark.R
