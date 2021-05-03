@@ -60,17 +60,13 @@ regression_estimation <- function(hfserie,lfserie,
 }
 
 coefficients_application <- function(hfserie,lfserie,regcoefs) {
-  tsphf <- tsp(hfserie)
-  tsplf <- tsp(lfserie)
   
-  startdomain_extended <- floor(tsphf[1L]*tsplf[3L])/tsplf[3L]
-  enddomain_extended <- ceiling((tsphf[2L]+1/tsphf[3L])*tsplf[3L])/tsplf[3L]-1/tsphf[3L]
-  # This window is the smallest that is all around the domain of the hfserie
-  # that is compatible with the low frequency.
+  tsp_extended <- extend_tsp(tsp(hfserie),frequency(lfserie))
   
-  hfserie_win <- window(hfserie,start=startdomain_extended,end=enddomain_extended,extend = TRUE)
+  hfserie_win <- window(hfserie,start=tsp_extended[1L],end=tsp_extended[2L],extend = TRUE)
   
   ts_from_tsp(as.numeric(hfserie_win %*% regcoefs),tsp(hfserie_win))
+  
 }
 
 eval_smoothed_part <- function(hfserie_fitted,lfserie,include.differenciation,rho,set.smoothed.part) {
@@ -296,6 +292,8 @@ twoStepsBenchmark <- function(hfserie,lfserie,
   
   if (is.matrix(hfserie) && is.null(colnames(hfserie))) stop("The high-frequency mts must have column names", call. = FALSE)
   
+  if (length(start(hfserie)) == 1L)  stop("Incorrect time-serie phase", call. = FALSE)
+  
   hfserie <- ts(matrix(c(constant,hfserie),
                        nrow = NROW(hfserie),
                        ncol = NCOL(hfserie) + 1L),
@@ -303,8 +301,9 @@ twoStepsBenchmark <- function(hfserie,lfserie,
                 frequency = frequency(hfserie),
                 names = c("constant",if (is.null(colnames(hfserie))) "hfserie" else colnames(hfserie)))
   
-  twoStepsBenchmark_impl(hfserie,
-                         lfserie,
+  lfserie <- purify_ts(lfserie)
+  
+  twoStepsBenchmark_impl(hfserie,lfserie,
                          include.differenciation,include.rho,
                          c(set.const,set.coeff),
                          start.coeff.calc,end.coeff.calc,

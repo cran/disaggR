@@ -1,8 +1,8 @@
 Package: disaggR
 Type: Package
 Title: Two-Steps Benchmarks for Time Series Disaggregation
-Version: 0.2.0.3
-Date: 2021-04-11
+Version: 0.2.1
+Date: 2021-05-03
 Authors@R: 
     c(person(given = "Arnaud",
              family = "Feldmann",
@@ -38,11 +38,11 @@ Collate: 'bflSmooth.R' 'data.R' 'disaggR.R' 'in.R' 's4declaration.R'
         'reView.R' 'threeRuleSmooth.R' 'utils.R'
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2021-04-11 13:01:43 UTC; arnok
+Packaged: 2021-05-03 15:08:43 UTC; F2YABF
 Author: Arnaud Feldmann [aut, cre] (<https://orcid.org/0000-0003-0109-7505>),
   Franck Arnaud [ctb] (barplot base graphics method for the mts class),
   Institut national de la statistique et des études économiques [cph]
     (https://www.insee.fr/)
 Maintainer: Arnaud Feldmann <arnaud.feldmann@insee.fr>
 Repository: CRAN
-Date/Publication: 2021-04-11 15:20:02 UTC
+Date/Publication: 2021-05-03 15:40:09 UTC
