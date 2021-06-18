@@ -29,12 +29,13 @@
 #' @export
 in_sample <- function(object,type="changes") UseMethod("in_sample")
 
+#' @importFrom stats lag
 #' @export
 in_sample.praislm <- function(object,type="changes") {
   autocor <- rho(object)*lag(residuals(object),-1)
   m <- model.list(object)
   y <- m$y
-  y_lagged <- stats::lag(y,k=-1)
+  y_lagged <- lag(y,k=-1)
   predicted_diff <- {
     if (m$include.differenciation) fitted(object) + autocor
     else fitted(object)+autocor-y_lagged
@@ -93,14 +94,33 @@ in_sample.threeRuleSmooth <- function(object,type="changes") {
 #' @export
 in_disaggr <- function(object,type="changes") UseMethod("in_disaggr")
 
-#' @export
-in_disaggr.twoStepsBenchmark <- function(object,type="changes") {
+replace_colnames_with_labels <- function(x) {
+  cln <- colnames(x)
+  cln[cln == "constant"] <- "Trend"
+  cln[cln == "hfserie"] <- "High-frequency serie"
+  colnames(x) <- cln
+  x
+}
+
+trend_is_last_col <- function(x) {
+  string <- colnames(x)
+  constant_which <- which(string == "Trend")
+  if (length(constant_which) == 0L) x
+  else x[,c(setdiff(seq_len(length(string)),constant_which),constant_which),
+         drop = FALSE]
+}
+
+#' @importFrom stats lag
+in_disaggr_notctb <- function(object,type) {
   
-  hfserie <- hfserie(object)
+  hfserie <- neither_outlier_nor_constant(object)
+  
+  hfserie <- replace_colnames_with_labels(hfserie)
   
   benchmark <- na.omit(as.ts(object))
   
-  series <- cbind(benchmark,hfserie)
+  series <- cbind(benchmark,
+                  hfserie)
   
   series <- switch(type,
                    levels = series,
@@ -108,57 +128,119 @@ in_disaggr.twoStepsBenchmark <- function(object,type="changes") {
                      ts(
                        t(t(series) /
                            series[which(apply(!(series == 0) & !(is.na(series)),1L, all))[1L],]
-                         ) * 100,
+                       ) * 100,
                        start=start(series),
                        frequency=frequency(series)),
-                   changes = (series/stats::lag(series,-1)-1)*100,
-                   contributions = {
-                     series_with_smoothed_part <-
-                       cbind(series[,-1L,drop=FALSE],
-                             smoothed.part(object),
-                             if (model.list(object)$include.differenciation &&
-                                 coef(object)["constant"] != 0) {
-                               coef(object)["constant"] * model.list(object)$hfserie[,"constant"]
-                             }
-                             else 0)
-                     diff(ts(t(t(series_with_smoothed_part) * c(coef(object)[names(coef(object)) != "constant"],1,1)),
-                             start = start(series_with_smoothed_part),
-                             frequency = frequency(series)))/stats::lag(series[,1L],-1) * 100
-                   },
+                   changes = (series/lag(series,-1)-1)*100,
                    stop("The type argument of in_disaggr should be either \"levels\", \"levels-rebased\" or \"changes\".",call. = FALSE)
   )
   
   structure(window(series,start=start(benchmark),end=end(benchmark),extend=TRUE),
+            dimnames=list(NULL,
+                          c("Benchmark",colnames(hfserie))
+            ),
             type=type,
+            func="in_disaggr",
+            class=c("tscomparison",class(series))
+  )
+  
+}
+
+in_disaggr_ctb <- function(object,type) UseMethod("in_disaggr_ctb")
+
+in_disaggr_ctb.threeRuleSmooth <- function(object) {
+  benchmark <- na.omit(as.ts(object))
+  
+  series <- cbind((benchmark/lag(benchmark,-1)-1)*100,
+                  0,
+                  0)
+  
+  structure(window(series,start=start(benchmark),end=end(benchmark),extend=TRUE),
+            type="contributions",
             func="in_disaggr",
             class=c("tscomparison",class(series)),
             dimnames=list(NULL,
-                          c(if (type != "contributions") "Benchmark",
-                            if (is.null(colnames(hfserie))) "High-frequency serie" else colnames(hfserie),
-                            if (type == "contributions") c("Smoothed part","Trend")
-                          ))
+                          c("High-frequency serie","Smoothed part","Trend")
+            ))
+}
+
+in_disaggr_ctb.twoStepsBenchmark <- function(object) {
+  
+  hfserie <- model.list(object)$hfserie
+  
+  hfserie <- replace_colnames_with_labels(hfserie)
+  
+  benchmark <- na.omit(as.ts(object))
+  
+  series <- cbind(hfserie,smoothed.part(object))
+  
+  series <- diff(ts(t(t(series) * c(coef(object),1)),
+                    start = start(series),
+                    frequency = frequency(series)))/lag(benchmark,-1) * 100
+  
+  structure(
+    trend_is_last_col(
+      structure(window(series,start=start(benchmark),end=end(benchmark),extend=TRUE),
+                dimnames=list(NULL,
+                              c(colnames(hfserie),
+                                "Smoothed part")
+                ))),
+    type="contributions",
+    func="in_disaggr",
+    class=c("tscomparison",class(series))
   )
 }
 
 #' @export
+in_disaggr.twoStepsBenchmark <- function(object,type="changes") {
+  if (type == "contributions") in_disaggr_ctb(object)
+  else in_disaggr_notctb(object,type)
+}
+
+#' @export
 in_disaggr.threeRuleSmooth <- function(object,type="changes") {
-  if (type == "contributions") {
-    
-    benchmark <- na.omit(as.ts(object))
-    
-    series <- cbind((benchmark/stats::lag(benchmark,-1)-1)*100,
-                    0,
-                    0)
-    
-    structure(window(series,start=start(benchmark),end=end(benchmark),extend=TRUE),
-              type="contributions",
-              func="in_disaggr",
-              class=c("tscomparison",class(series)),
-              dimnames=list(NULL,
-                            c("High-frequency serie","Smoothed part","Trend")
-              ))
-  }
-  else in_disaggr.twoStepsBenchmark(object,type)
+  if (type == "contributions") in_disaggr_ctb(object)
+  else in_disaggr_notctb(object,type)
+}
+
+safe_difference <- function(x,y) {
+  cnx <- colnames(x)
+  cny <- colnames(y)
+  
+  cnxlack <- setdiff(cny,cnx)
+  cnylack <- setdiff(cnx,cny)
+  
+  cnres <- c(intersect(cnx,cny),cnxlack,cnylack)
+  
+  x <- structure(cbind(x,
+                       if (!length(cnxlack) == 0L) {
+                         ts_from_tsp(matrix(0,
+                                            nrow = nrow(x),
+                                            ncol = length(cnxlack)),
+                                     tsp(x))
+                       }),
+                 dimnames = list(NULL,
+                                 c(cnx,cnxlack)))[,
+                                                  cnres,
+                                                  drop = FALSE]
+  
+  y <- structure(cbind(y,
+                       if (!length(cnylack) == 0L) {
+                         ts_from_tsp(matrix(0,
+                                            nrow = nrow(y),
+                                            ncol = length(cnylack)),
+                                     tsp(y))
+                       }),
+                 dimnames = list(NULL,
+                                 c(cny,cnylack)))[,
+                                                  cnres,
+                                                  drop = FALSE]
+  
+  res <- x-y
+  colnames(res) <- cnres
+  
+  res
+  
 }
 
 #' Comparing two disaggregations together
@@ -191,11 +273,14 @@ in_revisions.twoStepsBenchmark <- function(object,object_old,type="changes") {
   if (!inherits(object_old,"twoStepsBenchmark") &&
       !inherits(object_old,"threeRuleSmooth")) stop("old_object must be a twoStepsBenchmark or a threeRuleSmooth", call. = FALSE)
   
+  
+  
   tryCatch({
-    indic_old <- in_disaggr(object_old,type)
-    indic_new <- in_disaggr(object,type)
-    series <- indic_new-indic_old
-    colnames(series) <- colnames(indic_new)
+    series <- 
+      trend_is_last_col(
+        safe_difference(in_disaggr(object,type),
+                      in_disaggr(object_old,type))
+      )
   },
   error=function(e) stop(gsub("in_disaggr","in_revisions",e$message), call.=FALSE))
   
@@ -242,7 +327,7 @@ in_scatter <- function(object) UseMethod("in_scatter")
 in_scatter.praislm <- function(object) {
   m <- model.list(object)
   
-  X <- m$X[,colnames(m$X) != "constant",drop = FALSE]
+  X <- neither_outlier_nor_constant(object)
   
   if (ncol(X) != 1L) stop("This in_scatter method only supports univariate benchmarks", call. = FALSE)
   
@@ -255,7 +340,8 @@ in_scatter.praislm <- function(object) {
             func="in_scatter",
             class=c("tscomparison",class(series)),
             dimnames=list(NULL,c("Low-frequency serie", "High-frequency serie (regression)")),
-            coefficients=coefficients(object))
+            abline=c(constant=as.numeric(coefficients(object)["constant"]),
+                     slope=as.numeric(coefficients(object)[colnames(X)])))
 }
 
 #' @export
@@ -276,7 +362,7 @@ in_scatter.twoStepsBenchmark <- function(object) {
               max(coeff_clean_win[2L],benchmark_clean_win[2L]),
               extend = TRUE)
   
-  X <- m$hfserie[,colnames(m$hfserie) != "constant",drop = FALSE]
+  X <- neither_outlier_nor_constant(object)
   
   if (ncol(X) != 1L) stop("This in_scatter method only supports univariate benchmarks", call. = FALSE)
   
@@ -304,7 +390,8 @@ in_scatter.twoStepsBenchmark <- function(object) {
             dimnames=list(NULL,c("Low-frequency serie",
                                  "High-frequency serie (regression)",
                                  "High-frequency serie (benchmark)")),
-            coefficients=coefficients(object))
+            abline=c(constant=as.numeric(coefficients(object)["constant"]),
+                     slope=as.numeric(coefficients(object)[colnames(X)])))
 }
 
 #' @export
@@ -336,8 +423,7 @@ in_scatter.threeRuleSmooth <- function(object) {
             func="in_scatter",
             class=c("tscomparison",class(series)),
             dimnames=list(NULL,c("Low-frequency serie",
-                                 "High-frequency serie (benchmark)")),
-            coefficients=coefficients(object))
+                                 "High-frequency serie (benchmark)")))
 }
 
 #' @export
@@ -351,7 +437,7 @@ print.tscomparison <- function(x, digits = max(3L, getOption("digits") - 3L),...
   
   attr(x,"type")         <- NULL
   attr(x,"func")         <- NULL
-  attr(x,"coefficients") <- NULL
+  attr(x,"abline") <- NULL
   
   print(.preformat.ts(x, any(frequency(x) == c(4, 12)) && length(start(x)) == 2L, ...),
         quote = FALSE, right = TRUE,digits = digits,

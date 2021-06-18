@@ -14,8 +14,40 @@ test_that("switch window", {
                    c(tspex[1L],2011.4))
 })
 
+test_that("display_vector", {
+  expect_identical(display_vector(rep(0.1,12)),
+                   "c(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)")
+  expect_identical(display_vector(2),
+                   "2")
+  expect_identical(display_vector(c(a=1)),
+                   "c(a=1)")
+  expect_identical(display_vector(c(a=1,b=2)),
+                   "c(a=1,b=2)")
+  expect_identical(display_outliers(list(a=c(0.1,0.1))),
+                   "list(a=c(0.1,0.1))")
+  expect_identical(display_outliers(list(a=c(0.1,0.1),
+                                         b=0.3)),
+                   "list(a=c(0.1,0.1),b=0.3)")
+})
+
 test_that("get_preset", {
   expect_equal(get_preset(twoStepsBenchmark(turnover,construction,include.differenciation = TRUE)),1)
+  expect_equal(get_preset(twoStepsBenchmark(turnover,construction,include.differenciation = TRUE,
+                                            set.const = 0)),2)
+  expect_equal(get_preset(twoStepsBenchmark(turnover,construction)),3)
+  expect_equal(get_preset(twoStepsBenchmark(turnover,construction,include.rho = TRUE)),4)
+  expect_equal(get_preset(twoStepsBenchmark(turnover,construction,set.const = 0)),5)
+  expect_equal(get_preset(twoStepsBenchmark(turnover,construction,
+                                            include.rho = TRUE,
+                                            set.const = 0)),6)
+  
+  expect_equal(get_preset(twoStepsBenchmark(turnover,construction,
+                                            outliers = list(LS2003=rep(0.1,12)),
+                                            include.differenciation = TRUE)),1)
+  expect_true(is.na(get_preset(twoStepsBenchmark(turnover,construction,
+                                            outliers = list(LS2003=rep(0.1,12)),
+                                            set.coeff = c(LS2003=1),
+                                            include.differenciation = TRUE))))
   expect_equal(get_preset(twoStepsBenchmark(turnover,construction,include.differenciation = TRUE,
                                             set.const = 0)),2)
   expect_equal(get_preset(twoStepsBenchmark(turnover,construction)),3)
@@ -123,11 +155,11 @@ test_that("reView-withoutset",{
   # (ie with installed and restart in R Studio not loaded with devtools)
   # One has also have PhantomJS work with the firewall
   
-  skip_on_os("mac") # phantomjs bugs with macos
   skip_on_cran() # no shinytest on cran
   testthat::skip_if_not_installed("shinytest")
   
-  app <- shinytest::ShinyDriver$new(test_path("shiny-withoutset"))
+  app <- shinytest::ShinyDriver$new(test_path("shiny-withoutset"),
+                                    loadTimeout = 15000)
   
   expect_identical(app$getTitle(),"reView")
   
@@ -375,11 +407,11 @@ test_that("reView-setcoefconst",{
   # (ie with installed and restart in R Studio not loaded with devtools)
   # One has also have PhantomJS work with the firewall
   
-  skip_on_os("mac") # phantomjs bugs with macos
   skip_on_cran() # no shinytest on cran
   testthat::skip_if_not_installed("shinytest")
   
-  app <- shinytest::ShinyDriver$new(test_path("shiny-setcoefconst"))
+  app <- shinytest::ShinyDriver$new(test_path("shiny-setcoefconst"),
+                                    loadTimeout = 15000)
   
   expect_identical(app$getTitle(),"reView")
   
@@ -464,10 +496,178 @@ test_that("reView-setcoefconst",{
   # the previous code is to quit the shinyprocess for codecov to update
 })
 
-test_that("benchmarkCall NULL",{
-  expect_null(benchmarkCall(NULL,"a","b"))
+test_that("reView-outliers",{
+  
+  # important : the package should have been rebuilt for these tests
+  # (ie with installed and restart in R Studio not loaded with devtools)
+  # One has also have PhantomJS work with the firewall
+  
+  skip_on_cran() # no shinytest on cran
+  testthat::skip_if_not_installed("shinytest")
+  
+  app <- shinytest::ShinyDriver$new(test_path("shiny-outliers"),
+                                    loadTimeout = 15000)
+  
+  expect_identical(app$getTitle(),"reView")
+  
+  get_bn <- function() app$getAllValues()$export$`reView-reViewtab2-new_bn`
+  
+  app$setWindowSize(800,600)
+  app$waitForValue("reView-reViewtab1-model1_plot",iotype="output")
+  app$waitForValue("reView-reViewtab1-model2_plot",iotype="output")
+  app$waitForValue("reView-reViewtab1-model3_plot",iotype="output")
+  app$waitForValue("reView-reViewtab1-model4_plot",iotype="output")
+  app$waitForValue("reView-reViewtab1-model5_plot",iotype="output")
+  app$waitForValue("reView-reViewtab1-model6_plot",iotype="output")
+  
+  expect_equal(as.ts(get_bn()),as.ts(twoStepsBenchmark(turnover,construction,
+                                                       outliers = list(AO2005 = rep(0.1,12L)))))
+  
+  app$setInputs(`reView-menu` = "Export")
+  expect_equal(app$waitForValue("reView-reViewtab3-newcall",iotype="output"),
+               paste("twoStepsBenchmark(",
+                     "hfserie = turnover,",
+                     "lfserie = construction,",
+                     "include.differenciation = FALSE,",
+                     "include.rho = FALSE,",
+                     "start.coeff.calc = 2000,",
+                     "end.coeff.calc = 2019,",
+                     "start.benchmark = 2000,",
+                     "end.benchmark = 2019,",
+                     "outliers = list(AO2005=c(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1))\n)",sep = "\n\t"))
+  expect_equal(app$waitForValue("reView-reViewtab3-oldcall",iotype="output"),
+               paste("twoStepsBenchmark(",
+                     "hfserie = turnover,",
+                     "lfserie = construction,",
+                     "include.differenciation = FALSE,",
+                     "include.rho = FALSE,",
+                     "outliers = list(AO2005=c(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1))\n)",sep = "\n\t"))
+  
+  app$setInputs(`reView-menu` = "Modify")
+  app$setInputs(`reView-reViewtab2-setcoeff_button` = TRUE)
+  app$setInputs(`reView-reViewtab2-setcoeff` = 100)
+  app$setInputs(`reView-menu` = "Export")
+  expect_equal(app$waitForValue("reView-reViewtab3-newcall",iotype="output"),
+               paste("twoStepsBenchmark(",
+                     "hfserie = turnover,",
+                     "lfserie = construction,",
+                     "include.differenciation = FALSE,",
+                     "include.rho = FALSE,",
+                     "set.coeff = 100,",
+                     "start.coeff.calc = 2000,",
+                     "end.coeff.calc = 2019,",
+                     "start.benchmark = 2000,",
+                     "end.benchmark = 2019,",
+                     "outliers = list(AO2005=c(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1))\n)",sep = "\n\t"))
+  
+  p <- app$.__enclos_env__$private$shinyProcess
+  p$interrupt()
+  p$wait()
+  # the previous code is to quit the shinyprocess for codecov to update
+})
+
+test_that("reView-outlierssetcoef",{
+  
+  # important : the package should have been rebuilt for these tests
+  # (ie with installed and restart in R Studio not loaded with devtools)
+  # One has also have PhantomJS work with the firewall
+  
+  skip_on_cran() # no shinytest on cran
+  testthat::skip_if_not_installed("shinytest")
+  
+  app <- shinytest::ShinyDriver$new(test_path("shiny-outlierssetcoef"),
+                                    loadTimeout = 15000)
+  
+  expect_identical(app$getTitle(),"reView")
+  
+  get_bn <- function() app$getAllValues()$export$`reView-reViewtab2-new_bn`
+  
+  app$setWindowSize(800,600)
+  app$waitForValue("reView-reViewtab1-model1_plot",iotype="output")
+  app$waitForValue("reView-reViewtab1-model2_plot",iotype="output")
+  app$waitForValue("reView-reViewtab1-model3_plot",iotype="output")
+  app$waitForValue("reView-reViewtab1-model4_plot",iotype="output")
+  app$waitForValue("reView-reViewtab1-model5_plot",iotype="output")
+  app$waitForValue("reView-reViewtab1-model6_plot",iotype="output")
+  
+  expect_equal(as.ts(get_bn()),as.ts(twoStepsBenchmark(turnover,construction,
+                                                       outliers = list(AO2005 = rep(0.1,12L)),
+                                                       set.coeff = c(AO2005 = 1))))
+  
+  app$setInputs(`reView-menu` = "Export")
+  expect_equal(app$waitForValue("reView-reViewtab3-newcall",iotype="output"),
+               paste("twoStepsBenchmark(",
+                     "hfserie = turnover,",
+                     "lfserie = construction,",
+                     "include.differenciation = FALSE,",
+                     "include.rho = FALSE,",
+                     "set.coeff = c(AO2005=1),",
+                     "start.coeff.calc = 2000,",
+                     "end.coeff.calc = 2019,",
+                     "start.benchmark = 2000,",
+                     "end.benchmark = 2019,",
+                     "outliers = list(AO2005=c(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1))\n)",sep = "\n\t"))
+  expect_equal(app$waitForValue("reView-reViewtab3-oldcall",iotype="output"),
+               paste("twoStepsBenchmark(",
+                     "hfserie = turnover,",
+                     "lfserie = construction,",
+                     "include.differenciation = FALSE,",
+                     "include.rho = FALSE,",
+                     "set.coeff = c(AO2005=1),",
+                     "outliers = list(AO2005=c(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1))\n)",sep = "\n\t"))
+  
+  app$setInputs(`reView-menu` = "Modify")
+  app$setInputs(`reView-reViewtab2-setcoeff_button` = TRUE)
+  app$setInputs(`reView-reViewtab2-setcoeff` = 100)
+  expect_equal(as.ts(get_bn()),as.ts(twoStepsBenchmark(turnover,construction,
+                                                       outliers = list(AO2005 = rep(0.1,12L)),
+                                                       set.coeff = c(AO2005 = 1,
+                                                                     hfserie = 100))))
+  
+  app$setInputs(`reView-menu` = "Export")
+  expect_equal(app$waitForValue("reView-reViewtab3-newcall",iotype="output"),
+               paste("twoStepsBenchmark(",
+                     "hfserie = turnover,",
+                     "lfserie = construction,",
+                     "include.differenciation = FALSE,",
+                     "include.rho = FALSE,",
+                     "set.coeff = c(hfserie=100,AO2005=1),",
+                     "start.coeff.calc = 2000,",
+                     "end.coeff.calc = 2019,",
+                     "start.benchmark = 2000,",
+                     "end.benchmark = 2019,",
+                     "outliers = list(AO2005=c(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1))\n)",sep = "\n\t"))
+  
+  p <- app$.__enclos_env__$private$shinyProcess
+  p$interrupt()
+  p$wait()
+  # the previous code is to quit the shinyprocess for codecov to update
+})
+
+test_that("get_benchmark_call NULL",{
+  expect_null(get_benchmark_call(NULL,"a","b"))
 })
 
 test_that("link_if_in_shiny if not in shiny",{
   expect_equal(link_if_in_shiny("id","label",NULL),"label")
+})
+
+test_that("clean set coeff", {
+  expect_equal(
+    clean_set_coeff(0,
+                    twoStepsBenchmark(turnover,construction,
+                                      outliers = list(AO2005 = rep(0.1,12L)),
+                                      set.coeff = c(AO2005 = 1))),
+    c(hfserie = 0, AO2005 = 1))
+  expect_equal(
+    clean_set_coeff(NULL,twoStepsBenchmark(turnover,construction,outliers = list(AO2005 = rep(0.1,12L)),set.coeff = c(AO2005 = 1))),
+    c(AO2005 = 1))
+  expect_equal(
+    clean_set_coeff(0.5,twoStepsBenchmark(turnover,construction,outliers = list(AO2005 = rep(0.1,12L)))),
+    0.5)
+  
+  expect_equal(
+    clean_set_coeff(0,twoStepsBenchmark(turnover,construction)),
+    0)
+  
 })

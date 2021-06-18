@@ -23,6 +23,14 @@ boxstyle <- "padding: 6px 8px;
 lrmargins <- "margin-left: 3px;
               margin-right: 3px"
 
+lfserie <- function(benchmark) model.list(benchmark)$lfserie
+hfserie_alone <- function(benchmark) {
+  res <- model.list(benchmark)$hfserie
+  if (is.mts(res)) res[,!(colnames(res) %in% c("constant",
+                                               names(outliers(benchmark))))]
+  else res
+}
+
 info_switch <- function(mainout_choice)
   switch(mainout_choice,
          "Scatter plot" = {
@@ -113,7 +121,7 @@ get_clean_wins <- function(benchmark) {
 
 get_maxwin <- function(benchmark) {
   
-  tsphf <- tsp(hfserie(benchmark))
+  tsphf <- tsp(hfserie_alone(benchmark))
   
   verysmall <- getOption("ts.eps")/tsphf[3L]
   
@@ -191,7 +199,7 @@ presets_list_fun <- function(hfserie,lfserie,...) {
 }
 
 # The function make_new_bn is made for setting new_bn in shiny
-# while cleaning up its call argument
+# while cleaning up the call to evaluated args
 
 make_new_bn <- function(hfserie_name,lfserie_name,
                         hfserie,lfserie,
@@ -203,7 +211,8 @@ make_new_bn <- function(hfserie_name,lfserie_name,
                         start.benchmark,
                         end.benchmark,
                         start.domain,
-                        end.domain) {
+                        end.domain,
+                        outliers) {
   
   assign(hfserie_name,hfserie)
   assign(lfserie_name,lfserie)
@@ -218,7 +227,8 @@ make_new_bn <- function(hfserie_name,lfserie_name,
                                           start.benchmark = start.benchmark_arg,
                                           end.benchmark = end.benchmark_arg,
                                           start.domain = start.domain_arg,
-                                          end.domain = end.domain_arg),
+                                          end.domain = end.domain_arg,
+                                          outliers = outliers_arg),
                         list(hfserie_arg = parse(text=hfserie_name)[[1L]],
                              lfserie_arg = parse(text=lfserie_name)[[1L]],
                              include.differenciation_arg = include.differenciation,
@@ -230,27 +240,40 @@ make_new_bn <- function(hfserie_name,lfserie_name,
                              start.benchmark_arg = start.benchmark,
                              end.benchmark_arg = end.benchmark,
                              start.domain_arg = start.domain,
-                             end.domain_arg = end.domain)))
+                             end.domain_arg = end.domain,
+                             outliers_arg = outliers)))
+}
+
+zero_if_na <- function(x) if (is.na(x)) 0 else x
+
+clean_set_coeff <- function(set_hfserie,new_bn_external_setter) {
+  
+  set_coeff <- model.list(new_bn_external_setter)$set.coefficients
+  set_coeff <- set_coeff[names(set_coeff) != "constant"]
+  
+  set_outliers <- set_coeff[intersect(names(set_coeff),
+                                      names(outliers(new_bn_external_setter)))]
+  
+  
+  if (length(set_outliers) == 0L) set_hfserie else {
+    if (!is.null(set_hfserie)) names(set_hfserie) <- "hfserie"
+    c(set_hfserie,set_outliers)
+  }
 }
 
 get_new_bn <- function(input,hfserie_name,lfserie_name,new_bn_external_setter) {
+  
   tryCatch(
     make_new_bn(hfserie_name(),lfserie_name(),
-                hfserie(new_bn_external_setter()),lfserie(new_bn_external_setter()),
+                hfserie_alone(new_bn_external_setter()),lfserie(new_bn_external_setter()),
                 include.differenciation = input$dif,
                 include.rho = input$rho,
-                set.coeff = {
-                  if (input$setcoeff_button) {
-                    if (is.na(input$setcoeff)) 0
-                    else input$setcoeff
-                  }
-                  else NULL
-                },
+                set.coeff = clean_set_coeff(
+                  if (input$setcoeff_button) zero_if_na(input$setcoeff)
+                  else NULL,
+                  new_bn_external_setter()),
                 set.const = {
-                  if (input$setconst_button) {
-                    if (is.na(input$setconst)) 0
-                    else input$setconst
-                  }
+                  if (input$setconst_button) zero_if_na(input$setconst)
                   else NULL
                 },
                 start.coeff.calc = input$coeffcalc[1],
@@ -258,7 +281,8 @@ get_new_bn <- function(input,hfserie_name,lfserie_name,new_bn_external_setter) {
                 start.benchmark = input$benchmark[1],
                 end.benchmark = input$benchmark[2],
                 start.domain = model.list(new_bn_external_setter())$start.domain,
-                end.domain = model.list(new_bn_external_setter())$end.domain),
+                end.domain = model.list(new_bn_external_setter())$end.domain,
+                outliers = outliers(new_bn_external_setter())),
     error = function(e) NULL)
 }
 
@@ -281,9 +305,16 @@ set_inputs_to_default <- function(session,new_bn_external_setter) {
                     min = maxwin[1L],max = maxwin[2L],
                     value = c(maxwin[1L],maxwin[2L]),
                     step = 1/tsplf[3L])
-  if (length(model$set.coeff) != 0) {
+  
+  set_coeff_wo_outliers <- model$set.coeff
+  if (!is.null(names(set_coeff_wo_outliers))) {
+    set_coeff_wo_outliers <-
+      set_coeff_wo_outliers[names(set_coeff_wo_outliers) == "hfserie"]
+  }
+  
+  if (length(set_coeff_wo_outliers) != 0) {
     updateCheckboxInput(session,"setcoeff_button",value = TRUE)
-    updateNumericInput(session,"setcoeff",value = as.numeric(model$set.coeff))
+    updateNumericInput(session,"setcoeff",value = as.numeric(set_coeff_wo_outliers))
   } else updateCheckboxInput(session,"setcoeff_button",value = FALSE)
   if (length(model$set.const) != 0) {
     updateCheckboxInput(session,"setconst_button",value = TRUE)
@@ -308,21 +339,39 @@ set_preset <- function(session,selected_preset_tab1) {
   updateNumericInput(session,"setconst",value = setconst)
 }
 
-display_vector <- function(x) switch(length(x),
-                                     as.character(x),
-                                     paste0("c(",do.call(paste,c(as.list(as.character(x)),sep=",")),")"))
+display_vector <- function(x) {
+  if (!is.null(names(x))) paste0("c(",
+                                 paste(Map(paste0,names(x),"=",as.character(x)),collapse=","),
+                                 ")")
+  else if (length(x) == 1L) as.character(x)
+  else paste0("c(",paste(as.character(x),collapse=","),")")
+}
+
+display_outliers <- function(x) {
+  paste0("list(",
+         paste(Map(paste0,names(x),"=",lapply(x,display_vector)),collapse=","),
+         ")")
+}
 
 get_model <- function(benchmark) {
   model <- model.list(benchmark)
   model$set.coeff <- model$set.coefficients[names(model$set.coefficients) != "constant"]
-  model$set.const <- model$set.coefficients[names(model$set.coefficients) == "constant"]
+  
+  if (ncol(model$hfserie)-length(outliers(benchmark)) == 2L &&
+      length(model$set.coeff) == 1L &&
+      !(names(model$set.coeff) %in% names(outliers(benchmark)))) {
+    model$set.coeff <- unname(model$set.coeff)
+  }
+  
+  model$set.const <- unname(model$set.coefficients[names(model$set.coefficients) == "constant"])
   model$set.coefficients <- NULL
   model
 }
 
-benchmarkCall <- function(benchmark,hfserie_name,lfserie_name) {
+get_benchmark_call <- function(benchmark,hfserie_name,lfserie_name) {
   if (is.null(benchmark)) return(NULL)
   model <- get_model(benchmark)
+  outliers <- outliers(benchmark)
   
   paste0("twoStepsBenchmark(",
          "\n\thfserie = ",hfserie_name,
@@ -337,6 +386,7 @@ benchmarkCall <- function(benchmark,hfserie_name,lfserie_name) {
          if (!is.null(model$end.benchmark)) paste0(",\n\tend.benchmark = ", display_vector(model$end.benchmark)),
          if (!is.null(model$start.domain)) paste0(",\n\tstart.domain = ", display_vector(model$start.domain)),
          if (!is.null(model$end.domain)) paste0(",\n\tend.domain = ", display_vector(model$end.domain)),
+         if (!is.null(outliers)) paste0(",\n\toutliers = ", display_outliers(outliers)),
          "\n)")
 }
 
@@ -631,7 +681,7 @@ reView_server_tab1 <- function(id,old_bn,new_bn_ext_setter,selected_preset_tab2,
                  
                  presets_list <- reactive({
                    m <- model.list(new_bn_ext_setter())
-                   presets_list_fun(hfserie(new_bn_ext_setter()),
+                   presets_list_fun(hfserie_alone(new_bn_ext_setter()),
                                     lfserie(new_bn_ext_setter()),
                                     start.coeff.calc=m$start.coeff.calc,
                                     end.coeff.calc=m$end.coeff.calc,
@@ -817,7 +867,7 @@ reView_server_tab2_switch <- function(input,output,new_bn,old_bn,ns,compare) {
   plotswin <- reactive(c(input$plotswin[1L],
                          input$plotswin[2L]+
                            deltat(lfserie(old_bn()))-
-                           deltat(hfserie(old_bn()))))
+                           deltat(hfserie_alone(old_bn()))))
   
   mainout_choice <- input$mainout_choice
   
@@ -889,8 +939,8 @@ reView_server_tab2 <- function(id,hfserie_name,lfserie_name,
 reView_server_tab3 <- function(id,old_bn,new_bn,hfserie_name,lfserie_name,compare) {
   moduleServer(id,
                function(input,output,session) {
-                 new_call_text <- reactive(benchmarkCall(new_bn(),hfserie_name(),lfserie_name()))
-                 old_call_text <- reactive(if (compare()) benchmarkCall(old_bn(),hfserie_name(),lfserie_name())
+                 new_call_text <- reactive(get_benchmark_call(new_bn(),hfserie_name(),lfserie_name()))
+                 old_call_text <- reactive(if (compare()) get_benchmark_call(old_bn(),hfserie_name(),lfserie_name())
                                            else "No model to compare.")
                  output$oldcall <- renderText(old_call_text())
                  output$newcall <- renderText(new_call_text())
@@ -1076,7 +1126,7 @@ reView.twoStepsBenchmark <- function(object,
                                      compare = TRUE) {
   if (is.null(hfserie_name)) hfserie_name <- deparse(object$call$hfserie)
   if (is.null(lfserie_name)) lfserie_name <- deparse(object$call$lfserie)
-  if (length(coef(object)) > 2) stop("This reviewing application is only for univariate benchmarks.", call. = FALSE)
+  if (NCOL(neither_outlier_nor_constant(object)) > 1) stop("This reviewing application is only for univariate benchmarks.", call. = FALSE)
   runapp_reView(object,hfserie_name,lfserie_name,compare=compare)
 }
 
@@ -1118,11 +1168,13 @@ rePort.connection <- function(object, output_file = NULL,
 rePort.twoStepsBenchmark <- function(object, output_file = NULL,
                                      launch.browser = if (is.null(output_file)) TRUE else FALSE,
                                      ...) {
+  if (NCOL(neither_outlier_nor_constant(object)) > 1) stop("This reporting function is only for univariate benchmarks.", call. = FALSE)
   rePort(reViewOutput(object,benchmark_old=NULL,compare=FALSE),
          output_file,launch.browser,
          ...)
 }
 
+#' @importFrom utils browseURL
 #' @export
 rePort.reViewOutput <- function(object, output_file = NULL,
                                 launch.browser = if (is.null(output_file)) TRUE else FALSE,
@@ -1144,12 +1196,12 @@ rePort.reViewOutput <- function(object, output_file = NULL,
                     quiet = TRUE,
                     ...)
   if (is.null(output_file))  {
-    if (launch.browser) utils::browseURL(temp_html)
+    if (launch.browser) browseURL(temp_html)
     invisible(temp_html)
   }
   else {
     file.copy(temp_html, output_file, overwrite = TRUE)
-    if (launch.browser) utils::browseURL(output_file)
+    if (launch.browser) browseURL(output_file)
     invisible(output_file)
   }
 }

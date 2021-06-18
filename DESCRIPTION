@@ -1,8 +1,8 @@
 Package: disaggR
 Type: Package
 Title: Two-Steps Benchmarks for Time Series Disaggregation
-Version: 0.2.1
-Date: 2021-05-03
+Version: 1.0.0
+Date: 2021-06-18
 Authors@R: 
     c(person(given = "Arnaud",
              family = "Feldmann",
@@ -25,12 +25,13 @@ Description: The twoStepsBenchmark() and threeRuleSmooth() functions allow you t
   unknown for the last year, and the high frequency one is either quarterly or 
   mensual. See "Methodology of quarterly national accounts", Insee Méthodes 
   N°126, by Insee (2012, ISBN:978-2-11-068613-8).
-Imports: ggplot2, rmarkdown, scales, shiny (>= 1.5.0)
+Imports: ggplot2, graphics, methods, rmarkdown, scales, stats, shiny
+        (>= 1.5.0), utils
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.1.1
-Suggests: shinytest, testthat (>= 2.1.0), vdiffr
-Depends: R (>= 2.10), methods
+Suggests: shinytest, testthat (>= 3.0.0), vdiffr (>= 1.0.0)
+Depends: R (>= 2.10)
 BugReports: https://github.com/InseeFr/disaggR/issues
 LazyData: yes
 Collate: 'bflSmooth.R' 'data.R' 'disaggR.R' 'in.R' 's4declaration.R'
@@ -38,11 +39,11 @@ Collate: 'bflSmooth.R' 'data.R' 'disaggR.R' 'in.R' 's4declaration.R'
         'reView.R' 'threeRuleSmooth.R' 'utils.R'
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2021-05-03 15:08:43 UTC; F2YABF
+Packaged: 2021-06-18 13:16:15 UTC; F2YABF
 Author: Arnaud Feldmann [aut, cre] (<https://orcid.org/0000-0003-0109-7505>),
   Franck Arnaud [ctb] (barplot base graphics method for the mts class),
   Institut national de la statistique et des études économiques [cph]
     (https://www.insee.fr/)
 Maintainer: Arnaud Feldmann <arnaud.feldmann@insee.fr>
 Repository: CRAN
-Date/Publication: 2021-05-03 15:40:09 UTC
+Date/Publication: 2021-06-18 13:40:04 UTC
