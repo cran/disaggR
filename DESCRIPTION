@@ -1,8 +1,8 @@
 Package: disaggR
 Type: Package
 Title: Two-Steps Benchmarks for Time Series Disaggregation
-Version: 1.0.0
-Date: 2021-06-18
+Version: 1.0.1
+Date: 2021-07-21
 Authors@R: 
     c(person(given = "Arnaud",
              family = "Feldmann",
@@ -18,32 +18,33 @@ Authors@R:
              email = "comptes-trimestriels@insee.fr",
              comment = "https://www.insee.fr/"))
 Description: The twoStepsBenchmark() and threeRuleSmooth() functions allow you to 
-  disaggregate a low-frequency time-serie with time-series of higher frequency, 
-  using the French National Accounts methodology. The aggregated sum of the 
-  resulting time-serie is strictly equal to the low-frequency serie within the 
-  benchmarking window. Typically, the low-frequency serie is an annual one, 
-  unknown for the last year, and the high frequency one is either quarterly or 
-  mensual. See "Methodology of quarterly national accounts", Insee Méthodes 
-  N°126, by Insee (2012, ISBN:978-2-11-068613-8).
-Imports: ggplot2, graphics, methods, rmarkdown, scales, stats, shiny
-        (>= 1.5.0), utils
+    disaggregate a low-frequency time-serie with higher frequency time-series, 
+    using the French National Accounts methodology. The aggregated sum of the 
+    resulting time-serie is strictly equal to the low-frequency serie within the 
+    benchmarking window. Typically, the low-frequency serie is an annual one, 
+    unknown for the last year, and the high frequency one is either quarterly or 
+    mensual. See "Methodology of quarterly national accounts", Insee Méthodes 
+    N°126, by Insee (2012, ISBN:978-2-11-068613-8).
+Imports: graphics, grDevices, methods, RColorBrewer (>= 1.1-2), stats,
+        utils
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.1.1
-Suggests: shinytest, testthat (>= 3.0.0), vdiffr (>= 1.0.0)
-Depends: R (>= 2.10)
+Suggests: ggplot2 (>= 3.0.0), rmarkdown (>= 2.0.0), shiny (>= 1.5.0),
+        shinytest (>= 1.4.0), testthat (>= 3.0.0), vdiffr (>= 1.0.0)
+Depends: R (>= 3.6.0)
 BugReports: https://github.com/InseeFr/disaggR/issues
 LazyData: yes
-Collate: 'bflSmooth.R' 'data.R' 'disaggR.R' 'in.R' 's4declaration.R'
+Collate: 'bflSmooth.R' 'data.R' 'disaggR.R' 'in.R' 's4register.R'
         'twoStepsBenchmark.R' 'methods.R' 'plot.R' 'praislm.R'
         'reView.R' 'threeRuleSmooth.R' 'utils.R'
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2021-06-18 13:16:15 UTC; F2YABF
+Packaged: 2021-07-21 19:27:19 UTC; arnok
 Author: Arnaud Feldmann [aut, cre] (<https://orcid.org/0000-0003-0109-7505>),
   Franck Arnaud [ctb] (barplot base graphics method for the mts class),
   Institut national de la statistique et des études économiques [cph]
     (https://www.insee.fr/)
 Maintainer: Arnaud Feldmann <arnaud.feldmann@insee.fr>
 Repository: CRAN
-Date/Publication: 2021-06-18 13:40:04 UTC
+Date/Publication: 2021-07-21 19:50:02 UTC
