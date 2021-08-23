@@ -63,30 +63,33 @@ default_margins <- function(main, xlab, ylab) {
 
 plot_init <- function(xmin,xmax,ymin,ymax,xlab,ylab,
                       extend.x,extend.y,abline.x,
-                      main, ...) {
-  
-  if (is.null(xlab)) xlab <- ""
-  if (is.null(ylab)) ylab <- ""
-  
-  sizey <- ymax-ymin
+                      main, xlim = NULL, ylim = NULL,
+                      cex.main = NULL, cex.lab = NULL,
+                      ...) {
   
   plot(x = c(xmin,xmax), y = c(ymin,ymax),
-       xlim = c(xmin,xmax) + if (extend.x) 0.02 * (xmax-xmin) * c(-1,1) else c(0,0),
-       ylim = c(ymin,ymax) + if (extend.y) 0.02 * (ymax-ymin) * c(-1,1) else c(0,0),
+       xlim = xlim %||% (
+         c(xmin,xmax) + if (extend.x) 0.02 * (xmax-xmin) * c(-1,1) else c(0,0)
+       ),
+       ylim = ylim %||% (
+         c(ymin,ymax) + if (extend.y) 0.02 * (ymax-ymin) * c(-1,1) else c(0,0)
+       ),
        type = "n",
        xaxs = "i", xaxt = "n",
        yaxs = "i", yaxt = "n",
-       cex.main = 0.8,
+       cex.main = cex.main %||% 0.8,
        main = main, ...)
   
-  title(xlab = xlab, line= 0.8, cex.lab=0.8)
+  title(xlab = xlab %||% "", line= 0.8, cex.lab = cex.lab %||% 0.8)
   
-  title(ylab = ylab, line= 1.3, cex.lab=0.8)
+  title(ylab = ylab %||% "", line= 1.3, cex.lab = cex.lab %||% 0.8)
   
   if (abline.x) {
     verysmall <- attr(abline.x,"verysmall")
     grid(nx = NA,ny=NULL,col = "grey")
-    abline(v = (floor(xmin+verysmall)+1L):(ceiling(xmax-verysmall)-1L),lty="dotted",lwd=1,col="grey")   
+    abline(v = (floor(xlim[1L] %||% xmin+verysmall)+1L):
+             (ceiling(xlim[2L] %||% xmax-verysmall)-1L),
+           lty="dotted",lwd=1,col="grey")   
   }
   else grid(nx = NULL,ny=NULL,col = "grey")
 }
@@ -103,7 +106,8 @@ plot_init_x <- function(x, xlab, ylab, main, ...) {
             ymin = min(finite_x_vals,na.rm = TRUE),
             ymax = max(finite_x_vals,na.rm = TRUE),
             xlab = xlab, ylab = ylab,
-            extend.x = FALSE, extend.y = TRUE, abline.x = structure(TRUE,verysmall=getOption("ts.eps")/tspx[3L]),
+            extend.x = FALSE, extend.y = TRUE,
+            abline.x = structure(TRUE,verysmall=getOption("ts.eps")/tspx[3L]),
             main = main, ...)
 }
 
@@ -178,18 +182,23 @@ scatterplot_ts <- function(x,col,lty) {
   arrows_heads(x0,y0,x1,y1,col = col)
 }
 
-draw_axes <- function(timex) {
+draw_axes <- function(timex,cex.axis) {
   axis(side = 2L, labels=NA, tick = TRUE)
-  axis(side = 2L, tick = FALSE, line=-0.5, cex.axis=0.7)
+  axis(side = 2L, tick = FALSE, line=-0.5,
+       cex.axis = cex.axis %||% 0.7)
   
   if (is.null(timex)) {
     axis(side = 1L, labels=NA, tick = TRUE, tck=-0.011)
-    axis(side = 1L, tick = FALSE, line=-1.1, cex.axis=0.7)
+    axis(side = 1L, tick = FALSE, line=-1.1, cex.axis = cex.axis %||% 0.7)
   }
   else {
     year <- floor(timex+getOption("ts.eps")/frequency(timex))
-    axis(side = 1L, at = c(year,year[length(year)]+1L), labels = NA, tick = TRUE)
-    axis(side = 1L, at = year + 0.5, labels = year, tick = FALSE, line = -1.1, cex.axis=0.7)
+    lastyear <- year[length(year)]
+    m <- min(1/strwidth(lastyear),0.875)
+    axis(side = 1L, at = c(year,lastyear+1L), labels = NA, tick = TRUE)
+    axis(side = 1L, at = year + 0.5, labels = year, tick = FALSE,
+         line = -1.7+m*0.7, cex.axis = cex.axis %||% (0.8*m),
+         gap.axis = 1.5)
   }
 }
 
@@ -204,8 +213,8 @@ window_default <- function(x,start,end) {
     else apply(x,1L,function(x) !all(is.na(x)))
   }
   
-  start <- if (is.null(start)) floor(min(timex[non_na_vals]) + verysmall) else start
-  end <- if (is.null(end)) floor(max(timex[non_na_vals]) + verysmall) + 1 - deltat(x) else end
+  start <- start %||% floor(min(timex[non_na_vals]) + verysmall)
+  end <- end %||% (floor(max(timex[non_na_vals]) + verysmall) + 1 - deltat(x))
   
   res <- window(x,start=start,end=end,extend=TRUE)
   
@@ -220,8 +229,14 @@ eval_function_if_it_is_one <- function(f,arg) if (is.function(f)) f(arg) else f
 plotts <- function(x,show.legend,col,lty,
                    series_names,type="line",
                    start,end,
-                   xlab,ylab, main,
+                   xlab,ylab, main, cex.axis = NULL,
+                   xlim = NULL,
                    ...) {
+  
+  if (type != "scatter" && !is.null(xlim)) {
+    start <- start %||% xlim[1L]
+    end <- end %||% xlim[2L]
+  }
   
   x <- window_default(x,start,end)
   
@@ -273,7 +288,8 @@ plotts <- function(x,show.legend,col,lty,
                      ymax = max(x[,1L],na.rm = TRUE),
                      xlab = xlab, ylab = ylab,
                      extend.x = TRUE, extend.y = TRUE,
-                     abline.x=FALSE, main = main, ...)
+                     abline.x=FALSE, main = main, xlim = xlim,
+                     ...)
            
            if (!is.null(attr(x,"abline"))) {
              abline(a = attr(x,"abline")["constant"],
@@ -315,7 +331,8 @@ plotts <- function(x,show.legend,col,lty,
          }
   )
   
-  draw_axes(if (identical(attr(x,"func"),"in_scatter")) NULL else timex_win)
+  draw_axes(if (identical(attr(x,"func"),"in_scatter")) NULL else timex_win,
+            cex.axis)
   
   invisible()
 }
@@ -414,9 +431,9 @@ plot.threeRuleSmooth <- function(x, xlab = NULL, ylab = NULL,
 #' @param start a numeric of length 1 or 2. The start of the plot.
 #' @param end a numeric of length 1 or 2. The end of the plot.
 #' @param col the color scale applied on the plot. Could be a vector of colors,
-#' or a function from n to colors.
+#' or a function from n to a color vector of size n.
 #' @param lty the linetype scales applied on the plot. Could be a vector of
-#' linetypes, or a function from n to linetypes.
+#' linetypes, or a function from n to a linetypes vector of size n.
 #' @param show.legend `TRUE` or `FALSE`. Should an automatic legend be added to
 #' the plot.
 #' @param main a character of length 1, the title of the plot
@@ -497,8 +514,16 @@ plot.tscomparison <- function(x, xlab = NULL, ylab = NULL, start = NULL, end = N
 #' This is the default theme for the ggplot graphics produced with autoplot
 #' 
 #' @keywords internal
+#' @importFrom grDevices dev.size
 #' @export
-default_theme_ggplot <- function(show.legend,xlab,ylab,mar) {
+default_theme_ggplot <- function(object,start,end,show.legend,xlab,ylab,mar) {
+  
+  tspfloor <- floor(tsp(window_default(object,start = start, end = end))[c(1L,2L)]+
+                      getOption("ts.eps")/frequency(object))
+  
+  xchar_size <- min(dev.size("in")[1L]/(tspfloor[2L]-tspfloor[1L]+1) /
+                      nchar(tspfloor[2L],type = "width") * 72.27 * 1.36,10)
+  
   classic <- ggplot2::theme_classic()
   
   ggplot2::`%+replace%`(
@@ -509,8 +534,8 @@ default_theme_ggplot <- function(show.legend,xlab,ylab,mar) {
                                                                                              mar[1L],mar[2L],
                                                                                              unit="pt"),
                    panel.grid.major = ggplot2::element_line(colour = "#cccccc"),
-                   legend.position = if (show.legend) "bottom" else "none"
-    )
+                   legend.position = if (show.legend) "bottom" else "none",
+                   axis.text.x = ggplot2::element_text(size=xchar_size,vjust = 0.1))
   )
 }
 
@@ -691,7 +716,9 @@ autoplot.twoStepsBenchmark <- function(object, xlab = NULL, ylab = NULL,
                                        show.legend = TRUE,
                                        main = NULL,
                                        mar = NULL,
-                                       theme = default_theme_ggplot(show.legend,
+                                       theme = default_theme_ggplot(object,
+                                                                    start,end,
+                                                                    show.legend,
                                                                     xlab, ylab,
                                                                     mar),
                                        ...) {
@@ -711,7 +738,9 @@ autoplot.threeRuleSmooth <- function(object, xlab = NULL, ylab = NULL,
                                      show.legend = TRUE,
                                      main = NULL,
                                      mar = NULL,
-                                     theme = default_theme_ggplot(show.legend,
+                                     theme = default_theme_ggplot(object,
+                                                                  start,end,
+                                                                  show.legend,
                                                                   xlab, ylab,
                                                                   mar),
                                      ...) {
@@ -731,7 +760,9 @@ autoplot.tscomparison <- function(object, xlab = NULL, ylab = NULL,
                                   show.legend = TRUE,
                                   main = NULL,
                                   mar = NULL,
-                                  theme = default_theme_ggplot(show.legend,
+                                  theme = default_theme_ggplot(object,
+                                                               start,end,
+                                                               show.legend,
                                                                xlab, ylab,mar),
                                   ...) {
   
