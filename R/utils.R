@@ -34,13 +34,35 @@ fast_op_on_x <- function(x,y,FUN) {
               tspx = tsp)
 }
 
-neither_outlier_nor_constant <- function(object) UseMethod("neither_outlier_nor_constant")
+fast_aggregate <- function(x,nfrequency) {
+  dimx <- dim(x)
+  tspx <- tsp(x)
+  ratio <- tspx[3L]/nfrequency
+  
+  res <- .colSums(as.numeric(x),n = length(x)/ratio,m = ratio)
+  
+  if (is.null(dimx)) {
+    ts(res,
+       start = tspx[1L],
+       frequency = nfrequency)
+  } else {
+    ts(matrix(res,ncol = dimx[2L]),
+       start = tspx[1L],
+       frequency = nfrequency,
+       names = colnames(x))
+  }
+}
 
-neither_outlier_nor_constant.twoStepsBenchmark <- function(object) {
-  hfserie <- model.list(object)$hfserie
+neither_outlier_nor_constant_impl <- function(hfserie, object) {
   hfserie[,!(colnames(hfserie) %in% c("constant",
                                       names(outliers(object)))),
           drop = FALSE]
+}
+
+neither_outlier_nor_constant <- function(object) UseMethod("neither_outlier_nor_constant")
+
+neither_outlier_nor_constant.twoStepsBenchmark <- function(object) {
+  neither_outlier_nor_constant_impl(model.list(object)$hfserie, object)
 }
 
 neither_outlier_nor_constant.threeRuleSmooth <- function(object) {
@@ -48,10 +70,19 @@ neither_outlier_nor_constant.threeRuleSmooth <- function(object) {
 }
 
 neither_outlier_nor_constant.praislm <- function(object) {
-  hfserie <- model.list(object)$X
-  hfserie[,!(colnames(hfserie) %in% c("constant",
-                                      names(outliers(object)))),
-          drop = FALSE]
+  neither_outlier_nor_constant_impl(model.list(object)$X, object)
+}
+
+warning_news_factory <- function(message) {
+  force(message)
+  thrown <- FALSE
+  function() {
+    if (thrown == FALSE) {
+      warning(message, call. = FALSE)
+    }
+    thrown <<- TRUE
+    invisible(message)
+  }
 }
 
 #' Extend tsp with lf
@@ -75,7 +106,7 @@ extend_tsp <- function(tsphf,lffreq) {
 
 aggregate_and_crop_hf_to_lf <- function(hfserie,lfserie) {
   tsplf <- tsp(lfserie)
-  aggregate.ts(
+  fast_aggregate(
     window(hfserie,tsplf[1L],tsplf[2L]+1/tsplf[3L]-1/frequency(hfserie),extend = TRUE),
     nfrequency = tsplf[3L]
   )

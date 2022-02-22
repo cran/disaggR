@@ -3,8 +3,7 @@ type_label <- function(object) {
          levels="Levels",
          `levels-rebased`="Rebased levels",
          changes="Changes",
-         contributions="Contributions",
-         differences="Differences"
+         contributions="Contributions"
   )
 }
 
@@ -54,8 +53,8 @@ default_margins <- function(main, xlab, ylab) {
   c(
     if (is.null(xlab)) 1 else 2,
     if (is.null(ylab)) 1.3 else 2.3,
-    if (is.null(main)) 0 else 1,
-    0
+    if (is.null(main)) 0.001 else 1,
+    0.001
   )
 }
 
@@ -78,7 +77,10 @@ plot_init <- function(xmin,xmax,ymin,ymax,xlab,ylab,
        xaxs = "i", xaxt = "n",
        yaxs = "i", yaxt = "n",
        cex.main = cex.main %||% 0.8,
-       main = main, ...)
+       main = main,
+       xlab = "",
+       ylab = "",
+       ...)
   
   title(xlab = xlab %||% "", line= 0.8, cex.lab = cex.lab %||% 0.8)
   
