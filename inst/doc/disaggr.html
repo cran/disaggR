@@ -142,7 +142,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 <p>The French quarterly accounts are constructed using an indirect method, based on two major data series: the annual national accounts, and the short-term outlook data compiled from various sources. Hence, a temporal disaggregation methodology is needed.</p>
-<p><strong>disaggR</strong> isn’t the only package on the CRAN providing such methods. <a href="https://cran.r-project.org/package=tempdisagg">tempdisagg</a> relies on a formula interface, supports most time-series classes and provides compatibility with irregular disaggregation setting (e.g. months to days).</p>
+<p><strong>disaggR</strong> isn’t the only package on the CRAN providing such methods. <a href="https://cran.r-project.org/package=tempdisagg">tempdisagg</a> relies on a formula interface, supports most time series classes and provides compatibility with irregular disaggregation setting (e.g. months to days).</p>
 <p>disaggR has different goals:</p>
 <ul>
 <li>implementing the french national accounts methodology on time-series of the class <code>&quot;ts&quot;</code></li>
@@ -150,7 +150,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>being fast enough to deal with the production of multiple series without linking to Rcpp (for readability purposes)</li>
 </ul>
 <p>For further details about the french national accounts methodology, see <a href="https://www.insee.fr/en/information/2579410">Methodology of quarterly national accounts</a>.</p>
-<p><em>Within that vignette, for each matrix time-serie, like in R, rows stand for the time and columns for the different variables. As for the operations,</em> <span class="math inline">\(*\)</span> <em>stands for the standard product,</em> <span class="math inline">\(\odot\)</span> <em>for the element-wise multiplication, and</em> <span class="math inline">\(\oslash\)</span> <em>for the element-wise division.</em></p>
+<p><em>Within that vignette, for each matrix time series, like in R, rows stand for the time and columns for the different variables. As for the operations,</em> <span class="math inline">\(*\)</span> <em>stands for the standard product,</em> <span class="math inline">\(\odot\)</span> <em>for the element-wise multiplication, and</em> <span class="math inline">\(\oslash\)</span> <em>for the element-wise division.</em></p>
 <div id="two-steps-benchmarks" class="section level1">
 <h1>Two-Steps Benchmarks</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">twoStepsBenchmark</span>(turnover,construction)</span></code></pre></div>
@@ -160,12 +160,12 @@ C =  I * a + u
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><span class="math inline">\(C\)</span>, an univariate time-serie, is the high-frequency account.</li>
-<li><span class="math inline">\(I\)</span>, a matrix time-serie, combines the columns of the indicators, the outliers and the constant. If <code>include.differenciation</code> is <code>TRUE</code>, the constant is actually a trend.</li>
+<li><span class="math inline">\(C\)</span>, an univariate time series, is the high-frequency account.</li>
+<li><span class="math inline">\(I\)</span>, a matrix time series, combines the columns of the indicators, the outliers and the constant. If <code>include.differenciation</code> is <code>TRUE</code>, the constant is actually a trend.</li>
 <li><span class="math inline">\(a\)</span>, a numeric vector, stands for the coefficients to be applied.</li>
-<li><span class="math inline">\(u\)</span>, an univariate time-serie, is the smoothed part of the benchmark.</li>
+<li><span class="math inline">\(u\)</span>, an univariate time series, is the smoothed part of the benchmark.</li>
 </ul>
-<p>The <strong>coefficients are estimated at low-frequency</strong>, within the coeff.calc window, eventually after a differenciation if <code>include.differenciation</code> is <code>TRUE</code>:</p>
+<p>The <strong>coefficients are estimated at low-frequency</strong>, within the coeff.calc window, eventually after a differentiation if <code>include.differenciation</code> is <code>TRUE</code>:</p>
 <p><span class="math display">\[
 C_{aggregated}&#39; =  I_{aggregated}&#39; * a + u&#39;
 \]</span></p>
@@ -174,7 +174,7 @@ C_{aggregated}&#39; =  I_{aggregated}&#39; * a + u&#39;
 <p><span class="math display">\[
 \text{fitted.values} = I * a
 \]</span></p>
-<p>Note that, especially when <code>include.differenciation</code> is <code>TRUE</code>, the level of the fitted values is arbitrary: a constant is <em>chosen</em> to zero during the implicit reintegration. The choice of this constant, however, doesn’t impact the benchmarked serie.</p>
+<p>Note that, especially when <code>include.differenciation</code> is <code>TRUE</code>, the level of the fitted values is arbitrary: a constant is <em>chosen</em> to zero during the implicit reintegration. The choice of this constant, however, doesn’t impact the benchmarked series.</p>
 <p><strong>u is smoothed</strong>:</p>
 <p><span class="math display">\[
 u = smooth(extrapolation(C_{aggregated} - \text{fitted.values}_{aggregated}))
@@ -195,9 +195,9 @@ C =  I \odot a
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><span class="math inline">\(C\)</span>, an univariate time-serie, is the high-frequency account</li>
-<li><span class="math inline">\(I\)</span>, an <em>univariate</em> time-serie, the indicator</li>
-<li><span class="math inline">\(a\)</span>, an <em>univariate time-serie</em>, the coefficient to be applied, which is a rate to be smoothed.</li>
+<li><span class="math inline">\(C\)</span>, an univariate time series, is the high-frequency account</li>
+<li><span class="math inline">\(I\)</span>, an <em>univariate</em> time series, the indicator</li>
+<li><span class="math inline">\(a\)</span>, an <em>univariate time series</em>, the coefficient to be applied, which is a rate to be smoothed.</li>
 </ul>
 <p>Proportional Denton benchmarks share some similarities with univariate two-steps benchmarks without constants. There are some differences:</p>
 <ul>
@@ -272,7 +272,7 @@ a = smooth(a_{aggregated}&#39;,weights=I&#39;)
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="fu">outliers</span>(benchmark)</span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="fu">smoothed.rate</span>(smooth)</span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(benchmark)</span></code></pre></div>
-<p>Additionally, most of the methods for time-series, from the package stats, automatically coerce these objects into time-series using <code>as.ts()</code>.</p>
+<p>Additionally, most of the methods for time series, from the package stats, automatically coerce these objects into time-series using <code>as.ts()</code>.</p>
 </div>
 
 
