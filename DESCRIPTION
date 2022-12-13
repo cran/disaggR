@@ -1,7 +1,7 @@
 Package: disaggR
 Type: Package
 Title: Two-Steps Benchmarks for Time Series Disaggregation
-Version: 1.0.3.1
+Version: 1.0.4.1
 Authors@R: 
     c(person(given = "Arnaud",
              family = "Feldmann",
@@ -34,7 +34,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.1.2
 Suggests: knitr, ggplot2 (>= 3.0.0), rmarkdown (>= 2.0.0), shiny (>=
-        1.5.0), shinytest (>= 1.4.0), testthat (>= 3.0.0), vdiffr (>=
+        1.5.0), shinytest2 (>= 0.1.0), testthat (>= 3.0.0), vdiffr (>=
         1.0.0)
 Depends: R (>= 3.6.0)
 BugReports: https://github.com/InseeFr/disaggR/issues
@@ -44,8 +44,9 @@ Collate: 'bflSmooth.R' 'data.R' 'disaggR.R' 'utils.R' 'in.R'
         'praislm.R' 'reView.R' 'threeRuleSmooth.R'
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+URL: https://inseefr.github.io/disaggR/
 NeedsCompilation: no
-Packaged: 2022-03-01 20:30:22 UTC; agbod
+Packaged: 2022-12-13 21:17:38 UTC; agbod
 Author: Arnaud Feldmann [aut] (<https://orcid.org/0000-0003-0109-7505>, Author,
     creator and maintener of the package until the version 1.0.2),
   Franck Arnaud [ctb] (barplot base graphics method for the mts class),
@@ -54,4 +55,4 @@ Author: Arnaud Feldmann [aut] (<https://orcid.org/0000-0003-0109-7505>, Author,
     (https://www.insee.fr/)
 Maintainer: Thomas Laurent <thomas.laurent@insee.fr>
 Repository: CRAN
-Date/Publication: 2022-03-04 11:40:23 UTC
+Date/Publication: 2022-12-13 21:40:02 UTC

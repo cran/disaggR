@@ -1,15 +1,6 @@
-cssmainoutwithtitle <- function() {
-  if (isTRUE(getOption("shiny.testmode"))) "{height: 442px;}"
-  else "{height: calc(100vh - 158px);}"
-}
+cssmainoutwithtitle <- "{height: calc(100vh - 158px);}"
 
-cssmainoutwithouttitle <- function() {
-  if (isTRUE(getOption("shiny.testmode"))) "{height: 462px;}"
-  else "{height: calc(100vh - 138px);}"
-}
-
-# viewport seems to bug with shinytests so for the tests I manually calculate
-# them for a 800*600 window
+cssmainoutwithouttitle <- "{height: calc(100vh - 138px);}"
 
 boxstyle <- "padding: 6px 8px;
              margin-top: 6px;
@@ -140,7 +131,8 @@ get_maxwin <- function(benchmark) {
   c(startmin,endmax)
 }
 
-reViewOutput <- function(benchmark,benchmark_old,compare) {
+reViewOutput <- function(benchmark,benchmark_old,
+                         compare) {
   structure(list(benchmark = benchmark,
                  benchmark_old = benchmark_old,
                  hfserie_name = deparse(benchmark$call$hfserie),
@@ -405,7 +397,7 @@ get_benchmark_call <- function(benchmark,hfserie_name,lfserie_name) {
 reView_ui_tab1 <- function(id) {
   ns <- shiny::NS(id)
   shiny::div(shiny::fluidRow(
-    shiny::tags$style(type = "text/css", paste0(".",ns("presetplot"),cssmainoutwithouttitle())),
+    shiny::tags$style(type = "text/css", paste0(".",ns("presetplot"),cssmainoutwithouttitle)),
     shiny::column(12,
                   shiny::radioButtons(ns("firsttab_choice"),NULL,
                                       choices = c("In-sample changes","Summary table"),
@@ -441,8 +433,8 @@ reView_ui_tab2 <- function(id) {
     shiny::mainPanel(
       width = 10,
       shiny::fluidRow(
-        shiny::tags$style(type = "text/css", paste0(".",ns("mainoutwithtitle"),cssmainoutwithtitle(),"\n",
-                                                    ".",ns("mainoutwithouttitle"),cssmainoutwithouttitle())),
+        shiny::tags$style(type = "text/css", paste0(".",ns("mainoutwithtitle"),cssmainoutwithtitle,"\n",
+                                                    ".",ns("mainoutwithouttitle"),cssmainoutwithouttitle)),
         shiny::column(11,
                       shiny::radioButtons(ns("mainout_choice"),NULL,
                                           choices = c("Scatter plot","In-sample predictions","Comparison benchmark/input",
@@ -450,7 +442,7 @@ reView_ui_tab2 <- function(id) {
                                           selected = "Benchmark plot",inline=TRUE)
         ),
         shiny::column(1,
-                      shiny::actionButton(ns("infobtn"),label = NULL, icon = shiny::icon("info-circle"),
+                      shiny::actionButton(ns("infobtn"),label = NULL, icon = shiny::icon("circle-info"),
                                           class = "btn-success")),
         align="center"
       ),
@@ -1128,14 +1120,8 @@ reView.reViewOutput <- function(object,
                                 lfserie_name = NULL,
                                 compare = TRUE) {
   reView(object$benchmark,
-         hfserie_name = {
-           if (is.null(hfserie_name)) object$hfserie_name
-           else hfserie_name
-         },
-         lfserie_name = {
-           if (is.null(lfserie_name)) object$lfserie_name
-           else lfserie_name
-         },
+         hfserie_name = hfserie_name %||% object$hfserie_name,
+         lfserie_name = lfserie_name %||% object$lfserie_name,
          compare = compare)
 }
 
@@ -1144,10 +1130,11 @@ reView.twoStepsBenchmark <- function(object,
                                      hfserie_name = NULL,
                                      lfserie_name = NULL,
                                      compare = TRUE) {
-  if (is.null(hfserie_name)) hfserie_name <- deparse(object$call$hfserie)
-  if (is.null(lfserie_name)) lfserie_name <- deparse(object$call$lfserie)
   if (NCOL(neither_outlier_nor_constant(object)) > 1) stop("This reviewing application is only for univariate benchmarks.", call. = FALSE)
-  runapp_reView(object,hfserie_name,lfserie_name,compare=compare)
+  runapp_reView(object,
+                hfserie_name %||% deparse(object$call$hfserie),
+                lfserie_name %||% deparse(object$call$lfserie),
+                compare=compare)
 }
 
 #' Producing a report
@@ -1164,33 +1151,49 @@ reView.twoStepsBenchmark <- function(object,
 #' the file is temporary, and opened in a tab of the default browser.
 #' @param launch.browser `TRUE` or `FALSE`. If TRUE, the output is opened in the
 #' browser. Defaults to TRUE if output_file is NULL.
+#' @param hfserie_name a character of length 1. The name of the hfserie.
+#' @param lfserie_name a character of length 1. The name of the lfserie.
 #' @param \dots other arguments passed to rmarkdown::render
 #' 
 #' @seealso reView
 #' 
 #' @export
 rePort <- function(object, output_file = NULL,
-                   launch.browser = if (is.null(output_file)) TRUE else FALSE, ...) UseMethod("rePort")
+                   launch.browser = if (is.null(output_file)) TRUE else FALSE,
+                   hfserie_name = NULL,
+                   lfserie_name = NULL,
+                   ...) UseMethod("rePort")
 
 #' @export
 rePort.character <- function(object, output_file = NULL,
                              launch.browser = if (is.null(output_file)) TRUE else FALSE,
+                             hfserie_name = NULL,
+                             lfserie_name = NULL,
                              ...)
-  rePort(readRDS(object), output_file, launch.browser, ...)
+  rePort(readRDS(object), output_file, launch.browser, hfserie_name, lfserie_name,...)
 
 #' @export
-rePort.connection <- function(object, output_file = NULL,
+rePort.connection <- function(object,
+                              output_file = NULL,
                               launch.browser = if (is.null(output_file)) TRUE else FALSE,
+                              hfserie_name = NULL,
+                              lfserie_name = NULL,
                               ...)
-  rePort(readRDS(object), output_file, launch.browser, ...)
+  rePort(readRDS(object), output_file, launch.browser, hfserie_name, lfserie_name, ...)
 
 #' @export
 rePort.twoStepsBenchmark <- function(object, output_file = NULL,
                                      launch.browser = if (is.null(output_file)) TRUE else FALSE,
+                                     hfserie_name = NULL,
+                                     lfserie_name = NULL,
                                      ...) {
   if (NCOL(neither_outlier_nor_constant(object)) > 1) stop("This reporting function is only for univariate benchmarks.", call. = FALSE)
-  rePort(reViewOutput(object,benchmark_old=NULL,compare=FALSE),
+  rePort(reViewOutput(object,
+                      benchmark_old=NULL,
+                      compare=FALSE),
          output_file,launch.browser,
+         hfserie_name=hfserie_name,
+         lfserie_name=lfserie_name,
          ...)
 }
 
@@ -1198,6 +1201,8 @@ rePort.twoStepsBenchmark <- function(object, output_file = NULL,
 #' @export
 rePort.reViewOutput <- function(object, output_file = NULL,
                                 launch.browser = if (is.null(output_file)) TRUE else FALSE,
+                                hfserie_name = NULL,
+                                lfserie_name = NULL,
                                 ...) {
   if (!requireNamespace("rmarkdown", quietly = TRUE) ||
       packageVersion("rmarkdown") < 2.0) {
@@ -1214,8 +1219,8 @@ rePort.reViewOutput <- function(object, output_file = NULL,
   rmarkdown::render(temp_rmd,output_file=temp_html,
                     params = list(new_bn=object$benchmark,
                                   old_bn=object$benchmark_old,
-                                  hfserie_name=object$hfserie_name,
-                                  lfserie_name=object$lfserie_name),
+                                  hfserie_name=hfserie_name %||% object$hfserie_name,
+                                  lfserie_name=lfserie_name %||% object$lfserie_name),
                     envir = new.env(parent = globalenv()),
                     output_format = rmarkdown::html_document(css=system.file("rmd/report.css", package = "disaggR"),
                                                              theme=NULL),
@@ -1233,4 +1238,11 @@ rePort.reViewOutput <- function(object, output_file = NULL,
 }
 
 #' @export
-print.reViewOutput <- function(x, ...) rePort(x, output_file=NULL, ...)
+print.reViewOutput <- function(x,
+                               hfserie_name = NULL,
+                               lfserie_name = NULL,
+                               ...) rePort(x,
+                                           output_file=NULL,
+                                           hfserie_name=hfserie_name,
+                                           lfserie_name=lfserie_name,
+                                           ...)
