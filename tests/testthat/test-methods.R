@@ -4,7 +4,7 @@ test_that("print praislm", {
                                  include.differenciation = TRUE,
                                  include.rho = TRUE,
                                  set.const = pi^2)
-  expect_snapshot_output(print(prais(benchmark)),cran = TRUE)
+  expect_snapshot_output(print(prais(benchmark), digits = 4L),cran = FALSE)
   benchmark <- twoStepsBenchmark(hfserie = turnover,
                                  lfserie = construction,
                                  include.differenciation = TRUE,
@@ -27,8 +27,9 @@ test_that("print praislm", {
 })
 
 test_that("print threeRuleSmooth",{
-  expect_snapshot_output(print(threeRuleSmooth(turnover,construction)),
-                         cran = TRUE)
+  expect_snapshot_output(print(threeRuleSmooth(turnover,construction),
+                               digits = 4L),
+                         cran = FALSE)
 })
 
 test_that("methods tests", {
@@ -43,10 +44,14 @@ test_that("methods tests", {
   expect_s3_class(residuals(benchmark),"ts")
   expect_equal(frequency(residuals(benchmark)),frequency(construction))
   expect_output(print(summary(benchmark)),"^\nCall:\ntwoStepsBenchmark\\(hfserie = turnover, lfserie = construction")
-  expect_snapshot_output(print(benchmark),cran = TRUE)
-  expect_snapshot_output(show(benchmark),cran = TRUE)
+  expect_snapshot_output(print(benchmark, digits = 4L),cran = FALSE)
+  
+  digits_save <- getOption("digits")
+  options(digits = 4L)
+  expect_snapshot_output(show(benchmark),cran = FALSE)
   expect_snapshot_output(show(threeRuleSmooth(turnover,construction)),
-                         cran = TRUE)
+                         cran = FALSE)
+  options(digits = digits_save)
   
   a <- diff(aggregate(smoothed.part(benchmark)))
   b <- residuals(benchmark)
@@ -188,6 +193,12 @@ test_that("diverse ts methods",{
 test_that("monthplot ts method",{
   skip_on_cran()
   skip_if_not_installed("vdiffr")
+  skip_if(
+    any(
+      grepl("openblas",
+            as.character(sessionInfo()[c("BLAS","LAPACK")]))
+    )
+  )
   expect_doppelganger <- vdiffr::expect_doppelganger
   benchmark <- twoStepsBenchmark(turnover,construction)
   smooth <- threeRuleSmooth(turnover,construction)
@@ -208,25 +219,25 @@ test_that("outliers",{
                                  outliers = list(AO2005T1=rep(0.1,12)))
   expect_identical(outliers(benchmark),list(AO2005T1=rep(0.1,12)))
   expect_equal(outliers(benchmark,as.ts = TRUE),
-                   structure(
-                     ts(c(rep(0,60L),
-                          rep(0.1,12L),
-                          rep(0,173L)),
-                        frequency = 12L,
-                        start = 2000),
-                     dim = c(245L,1L),
-                     dimnames = list(NULL,
-                                     c("AO2005T1"))))
+               structure(
+                 ts(c(rep(0,60L),
+                      rep(0.1,12L),
+                      rep(0,173L)),
+                    frequency = 12L,
+                    start = 2000),
+                 dim = c(245L,1L),
+                 dimnames = list(NULL,
+                                 c("AO2005T1"))))
   
   expect_identical(outliers(prais(benchmark)),list(AO2005T1=rep(0.1,12)))
   expect_equal(outliers(prais(benchmark),as.ts = TRUE),
-                   structure(
-                     ts(c(rep(0,5L),
-                          1.2,
-                          rep(0,14L)),
-                        frequency = 1L,
-                        start = 2000),
-                     dim = c(20L,1L),
-                     dimnames = list(NULL,
-                                     c("AO2005T1"))))
+               structure(
+                 ts(c(rep(0,5L),
+                      1.2,
+                      rep(0,14L)),
+                    frequency = 1L,
+                    start = 2000),
+                 dim = c(20L,1L),
+                 dimnames = list(NULL,
+                                 c("AO2005T1"))))
 })
