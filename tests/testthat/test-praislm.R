@@ -10,6 +10,15 @@ test_that("error praislm", {
                      TRUE,numeric(),NULL),"ts object")
   expect_error(praislm(ts(1:120,frequency=12,start=2010),1:10,
                        TRUE,numeric(),NULL),"ts object")
+  expect_error(praislm(ts(matrix(1,1,1),frequency=1,start=2010),
+                       ts(1,frequency=1,start=2010),
+                       FALSE, TRUE, numeric(), NULL),"less than two observations")
+  expect_error(praislm(ts(structure(c(1, 1, pi, 17 * pi),
+                                    dim = c(2L, 2L),
+                                    dimnames = list(NULL, c("constant", "hfserie"))),
+                          frequency=1,start=2010),
+                       ts(c(99,-4),frequency=1,start=2010),
+                       TRUE, FALSE, numeric(), NULL),"rank becomes imperfect")
 })
 
 test_that("max iter",{
