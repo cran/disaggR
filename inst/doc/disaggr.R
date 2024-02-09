@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -12,10 +12,10 @@ knitr::opts_chunk$set(
 ## ----echo=FALSE---------------------------------------------------------------
 library(disaggR)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  twoStepsBenchmark(turnover,construction)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  threeRuleSmooth(turnover,construction)
 
 ## -----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ autoplot(in_disaggr(smooth),
          start=c(2009,1),end=c(2013,12),
          show.legend = FALSE)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  benchmark <- twoStepsBenchmark(turnover,construction)
 #  smooth <- threeRuleSmooth(turnover,construction)
 #  

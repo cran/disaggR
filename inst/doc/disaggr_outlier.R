@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -81,7 +81,7 @@ coefficients(summary(benchmark_out_2020))
 plot(in_disaggr(benchmark_out_2020, type ="contributions"), start=2018)
 plot(in_disaggr(benchmark_out_2020, type="levels-rebased"), start=c(2010,1))
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  AO2020 = c(1,2,1,0) # A one-year AO in 2020, with half the weight in Q2
 #                      # and the rest split between Q1 and Q3
 #  

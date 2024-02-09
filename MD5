@@ -1,4 +1,4 @@
-90622a66ec45cd4e0e9a7693df407c12 *DESCRIPTION
+7db0f7e790070c8ab1ca851cf585e455 *DESCRIPTION
 50e2c529dc824184723e64aa09e9591b *LICENSE
 65ec92cc3e8ee7c1a3aefe2f097d1158 *NAMESPACE
 67b537b070eb92f72281781ce6f01b10 *NEWS.md
@@ -15,15 +15,15 @@ f3037803643e106a6873501ee0bcb5ee *R/threeRuleSmooth.R
 d66c3ae9d3bad57db57db71d0805ec84 *R/twoStepsBenchmark.R
 fd1e6939e07504d4434b4b979f1fb1db *R/utils.R
 596f8b6a70b106ac3110fb7dd7334b55 *README.md
-79448cd57b63e295479b371406b1b01f *build/vignette.rds
+5bcc2e8232212c0b8b114f30020a741d *build/vignette.rds
 02bc9f1b2c00ac125f45f79583ddf994 *data/construction.RData
 9e10d18404d4c6f3e0e8daa38bc1f375 *data/consumption_catering.RData
 99595744fe4135587784f7e414c3f074 *data/turnover.RData
 e43e2979a862d3ddb40c41a647947619 *data/turnover_catering.RData
-8b4292fc098c6a923af12cb9784f329c *inst/doc/disaggr.R
+6af9ebcb4d06ae1f08df10f3d49b3266 *inst/doc/disaggr.R
 a25f762d897bf43ccdd0adf0f610377e *inst/doc/disaggr.Rmd
 b9948286d1007a8994659fb64ec2378f *inst/doc/disaggr.html
-19d7fc6e5a622d474f4f0a32f63ba23b *inst/doc/disaggr_outlier.R
+b8303ba4380389925f5c15500e4c6246 *inst/doc/disaggr_outlier.R
 519bb4fdb19468ff87f1deafac8c6376 *inst/doc/disaggr_outlier.Rmd
 dbdf8ff5da63489cdf27c8621f6e544f *inst/doc/disaggr_outlier.html
 1fef90ce7bec9f271f58b6325124dacd *inst/rmd/report.Rmd
@@ -73,7 +73,7 @@ d96d68fdedbf8e6deb439944b9356ca4 *man/turnover.Rd
 69a53c73efeef8b0128e4597b626752f *man/turnover_catering.Rd
 675b48cc78bab258e7769876a3d631d0 *man/twoStepsBenchmark.Rd
 6ae2cb16bb45745646180465226c357b *tests/testthat.R
-4b4847a261236ab6367e6c2aa3a26393 *tests/testthat/_snaps/in.md
+80ca12b19dc91a762ab98280cb690fcc *tests/testthat/_snaps/in.md
 e474e2a58267953016cb1190110b7b1c *tests/testthat/_snaps/methods.md
 0fe8bb55778e2f59e4d0e76f3cd36311 *tests/testthat/_snaps/methods/monthplot-threerulesmooth.svg
 65ffd05936f123b47ab393a8bfcdd4fb *tests/testthat/_snaps/methods/monthplot-twostepsbenchmark.svg

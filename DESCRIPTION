@@ -1,21 +1,21 @@
 Package: disaggR
 Type: Package
 Title: Two-Steps Benchmarks for Time Series Disaggregation
-Version: 1.0.5.1
+Version: 1.0.5.2
 Authors@R: 
     c(person(given = "Arnaud",
              family = "Feldmann",
              role = "aut",
              email = "arnaud.feldmann@gmail.com",
-             comment = c(ORCID = "0000-0003-0109-7505","Author, creator and maintener of the package until the version 1.0.2")),
+             comment = c(ORCID = "0000-0003-0109-7505","Creator and maintener of the package until the version 1.0.2")),
       person(given = "Franck",
              family = "Arnaud",
              role = "ctb",
              comment = "barplot base graphics method for the mts class"),
-      person(given = "Thomas",
-             family = "Laurent",
+      person(given = "Pauline",
+             family = "Meinzel",
              role = "cre",
-             email = "thomas.laurent@insee.fr"),
+             email = "pauline.meinzel@insee.fr"),
       person(given = "Institut national de la statistique et des études économiques",
              role = "cph",
              email = "comptes-trimestriels@insee.fr",
@@ -46,13 +46,13 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://inseefr.github.io/disaggR/
 NeedsCompilation: no
-Packaged: 2023-10-07 18:35:25 UTC; agbod
-Author: Arnaud Feldmann [aut] (<https://orcid.org/0000-0003-0109-7505>, Author,
-    creator and maintener of the package until the version 1.0.2),
+Packaged: 2024-02-06 13:00:39 UTC; arnaud.feldmann
+Author: Arnaud Feldmann [aut] (<https://orcid.org/0000-0003-0109-7505>, Creator
+    and maintener of the package until the version 1.0.2),
   Franck Arnaud [ctb] (barplot base graphics method for the mts class),
-  Thomas Laurent [cre],
+  Pauline Meinzel [cre],
   Institut national de la statistique et des études économiques [cph]
     (https://www.insee.fr/)
-Maintainer: Thomas Laurent <thomas.laurent@insee.fr>
+Maintainer: Pauline Meinzel <pauline.meinzel@insee.fr>
 Repository: CRAN
-Date/Publication: 2023-10-07 19:40:02 UTC
+Date/Publication: 2024-02-09 13:10:02 UTC
