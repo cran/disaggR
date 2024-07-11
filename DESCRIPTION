@@ -1,21 +1,25 @@
 Package: disaggR
 Type: Package
 Title: Two-Steps Benchmarks for Time Series Disaggregation
-Version: 1.0.5.2
+Version: 1.0.5.3
 Authors@R: 
     c(person(given = "Arnaud",
              family = "Feldmann",
              role = "aut",
              email = "arnaud.feldmann@gmail.com",
-             comment = c(ORCID = "0000-0003-0109-7505","Creator and maintener of the package until the version 1.0.2")),
-      person(given = "Franck",
-             family = "Arnaud",
-             role = "ctb",
-             comment = "barplot base graphics method for the mts class"),
+             comment = c(ORCID = "0000-0003-0109-7505","Author and maintener of the package until the version 1.0.1")),
       person(given = "Pauline",
              family = "Meinzel",
              role = "cre",
              email = "pauline.meinzel@insee.fr"),
+      person(given = "Thomas",
+             family = "Laurent",
+             role = "ctb",
+             comment = "Maintener of the package from 1.0.2 to 1.0.5.2"),
+      person(given = "Franck",
+             family = "Arnaud",
+             role = "ctb",
+             comment = "barplot base graphics method for the mts class"),
       person(given = "Institut national de la statistique et des études économiques",
              role = "cph",
              email = "comptes-trimestriels@insee.fr",
@@ -32,7 +36,7 @@ Imports: graphics, grDevices, methods, RColorBrewer (>= 1.1-2), stats,
         utils
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Suggests: knitr, ggplot2 (>= 3.0.0), rmarkdown (>= 2.0.0), shiny (>=
         1.5.0), shinytest2 (>= 0.1.0), testthat (>= 3.0.0), vdiffr (>=
         1.0.0)
@@ -46,13 +50,14 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://inseefr.github.io/disaggR/
 NeedsCompilation: no
-Packaged: 2024-02-06 13:00:39 UTC; arnaud.feldmann
-Author: Arnaud Feldmann [aut] (<https://orcid.org/0000-0003-0109-7505>, Creator
-    and maintener of the package until the version 1.0.2),
-  Franck Arnaud [ctb] (barplot base graphics method for the mts class),
+Packaged: 2024-06-24 10:26:54 UTC; arnaud.feldmann
+Author: Arnaud Feldmann [aut] (<https://orcid.org/0000-0003-0109-7505>, Author
+    and maintener of the package until the version 1.0.1),
   Pauline Meinzel [cre],
+  Thomas Laurent [ctb] (Maintener of the package from 1.0.2 to 1.0.5.2),
+  Franck Arnaud [ctb] (barplot base graphics method for the mts class),
   Institut national de la statistique et des études économiques [cph]
     (https://www.insee.fr/)
 Maintainer: Pauline Meinzel <pauline.meinzel@insee.fr>
 Repository: CRAN
-Date/Publication: 2024-02-09 13:10:02 UTC
+Date/Publication: 2024-07-11 08:10:02 UTC

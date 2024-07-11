@@ -7,10 +7,26 @@ skips <- function() {
             as.character(sessionInfo()[c("BLAS","LAPACK")]))
     )
   )
-  skip_if(getRversion() < "4.4.0")
+  skip_if(packageVersion("ggplot2") < "3.5.0")
 }
 
-expect_doppelganger <- vdiffr::expect_doppelganger
+# taken from the non exported of vdiffr
+str_standardise <- function (s, sep = "-")  {
+  stopifnot(is.character(s) && length(s) == 1)
+  s <- gsub("[^a-z0-9]", sep, tolower(s))
+  s <- gsub(paste0(sep, sep, "+"), sep, s)
+  s <- gsub(paste0("^", sep, "|", sep, "$"), "", s)
+  s
+}
+
+expect_doppelganger <- function(title, fig) {
+  this_version <- paste0(title, "-", if (getRversion() < "4.4.0") "lt43" else "gt44")
+  other_version <- paste0(title, "-", if (getRversion() < "4.4.0") "gt44" else "lt43")
+  fig_name <- str_standardise(other_version)
+  file <- paste0(fig_name, ".svg")
+  testthat::announce_snapshot_file(name = file)
+  vdiffr::expect_doppelganger(this_version, fig)
+}
 
 test_that("function_if_it_isnt_one works", {
   expect_identical(function_if_it_isnt_one(seq_len),seq_len)
@@ -37,7 +53,7 @@ test_that("plot works with twoStepsBenchmark", {
                                   end.domain = c(2021,12))
   
   expect_doppelganger("plot-benchmark-nowin",
-                      function() plot(benchmark),)
+                      function() plot(benchmark))
   
   expect_doppelganger("plot-insample-levels-nowin",
                       function() plot(in_sample(benchmark,type="levels")))
