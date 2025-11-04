@@ -82,12 +82,12 @@ plot(in_disaggr(benchmark_out_2020, type ="contributions"), start=2018)
 plot(in_disaggr(benchmark_out_2020, type="levels-rebased"), start=c(2010,1))
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  AO2020 = c(1,2,1,0) # A one-year AO in 2020, with half the weight in Q2
-#                      # and the rest split between Q1 and Q3
-#  
-#  AO2008T2=c(0,0,3) # A one-quarter AO in the second quarter of 2008,
-#                    # which is concentrated in June
-#  
-#  LS2010 = c(0,1,2,3) # A level shift that start in Q2 2010 and increase
-#                      # gradually in Q3 and Q4, and remains at its level afterwards
+# AO2020 = c(1,2,1,0) # A one-year AO in 2020, with half the weight in Q2
+#                     # and the rest split between Q1 and Q3
+# 
+# AO2008T2=c(0,0,3) # A one-quarter AO in the second quarter of 2008,
+#                   # which is concentrated in June
+# 
+# LS2010 = c(0,1,2,3) # A level shift that start in Q2 2010 and increase
+#                     # gradually in Q3 and Q4, and remains at its level afterwards
 

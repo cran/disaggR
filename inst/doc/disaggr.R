@@ -13,10 +13,10 @@ knitr::opts_chunk$set(
 library(disaggR)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  twoStepsBenchmark(turnover,construction)
+# twoStepsBenchmark(turnover,construction)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  threeRuleSmooth(turnover,construction)
+# threeRuleSmooth(turnover,construction)
 
 ## -----------------------------------------------------------------------------
 benchmark <- twoStepsBenchmark(hfserie = turnover,
@@ -34,22 +34,22 @@ autoplot(in_disaggr(smooth),
          show.legend = FALSE)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  benchmark <- twoStepsBenchmark(turnover,construction)
-#  smooth <- threeRuleSmooth(turnover,construction)
-#  
-#  reView(benchmark)
-#  rePort(benchmark)
-#  
-#  as.ts(benchmark);as.ts(smooth)
-#  as.list(benchmark);as.list(smooth)
-#  coef(benchmark)
-#  residuals(benchmark)
-#  vcov(benchmark)
-#  fitted(benchmark)
-#  model.list(benchmark);model.list(smooth)
-#  se(benchmark)
-#  rho(benchmark)
-#  outliers(benchmark)
-#  smoothed.rate(smooth)
-#  summary(benchmark)
+# benchmark <- twoStepsBenchmark(turnover,construction)
+# smooth <- threeRuleSmooth(turnover,construction)
+# 
+# reView(benchmark)
+# rePort(benchmark)
+# 
+# as.ts(benchmark);as.ts(smooth)
+# as.list(benchmark);as.list(smooth)
+# coef(benchmark)
+# residuals(benchmark)
+# vcov(benchmark)
+# fitted(benchmark)
+# model.list(benchmark);model.list(smooth)
+# se(benchmark)
+# rho(benchmark)
+# outliers(benchmark)
+# smoothed.rate(smooth)
+# summary(benchmark)
 

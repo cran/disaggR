@@ -1,7 +1,7 @@
 Package: disaggR
 Type: Package
 Title: Two-Steps Benchmarks for Time Series Disaggregation
-Version: 1.0.5.3
+Version: 1.0.5.4
 Authors@R: 
     c(person(given = "Arnaud",
              family = "Feldmann",
@@ -50,9 +50,9 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://inseefr.github.io/disaggR/
 NeedsCompilation: no
-Packaged: 2024-06-24 10:26:54 UTC; arnaud.feldmann
-Author: Arnaud Feldmann [aut] (<https://orcid.org/0000-0003-0109-7505>, Author
-    and maintener of the package until the version 1.0.1),
+Packaged: 2025-10-20 16:02:41 UTC; afeldmann
+Author: Arnaud Feldmann [aut] (ORCID: <https://orcid.org/0000-0003-0109-7505>,
+    Author and maintener of the package until the version 1.0.1),
   Pauline Meinzel [cre],
   Thomas Laurent [ctb] (Maintener of the package from 1.0.2 to 1.0.5.2),
   Franck Arnaud [ctb] (barplot base graphics method for the mts class),
@@ -60,4 +60,4 @@ Author: Arnaud Feldmann [aut] (<https://orcid.org/0000-0003-0109-7505>, Author
     (https://www.insee.fr/)
 Maintainer: Pauline Meinzel <pauline.meinzel@insee.fr>
 Repository: CRAN
-Date/Publication: 2024-07-11 08:10:02 UTC
+Date/Publication: 2025-11-04 00:00:02 UTC
